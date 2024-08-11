@@ -42,6 +42,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDbContext<ClownsContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Add other services to the container
