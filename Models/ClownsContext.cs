@@ -15,6 +15,14 @@ public partial class ClownsContext : DbContext
     {
     }
 
+    public virtual DbSet<Contract> Contracts { get; set; }
+
+    public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
+
+    public virtual DbSet<Team> Teams { get; set; }
+
+    public virtual DbSet<TimeSlot> TimeSlots { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -23,6 +31,57 @@ public partial class ClownsContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Contract>(entity =>
+        {
+            entity.HasKey(e => e.ContractId).HasName("Contracts_pkey");
+
+            entity.Property(e => e.ContractId).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<ContractTimeTeamInfo>(entity =>
+        {
+            entity.HasKey(e => e.ContractTimeTeamInfoId).HasName("Contract_TimeTeamInfo_pkey");
+
+            entity.ToTable("Contract_TimeTeamInfo");
+
+            entity.Property(e => e.ContractTimeTeamInfoId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("Contract_TimeTeamInfoId");
+
+            entity.HasOne(d => d.Contract).WithMany(p => p.ContractTimeTeamInfos)
+                .HasForeignKey(d => d.ContractId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("Contract_TimeTeamInfo_Contracts_fkey");
+
+            entity.HasOne(d => d.Time).WithMany(p => p.ContractTimeTeamInfos)
+                .HasForeignKey(d => d.TimeId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("Contract_TimeTeamInfo_Teams_fkey");
+
+            entity.HasOne(d => d.TimeSlot).WithMany(p => p.ContractTimeTeamInfos)
+                .HasForeignKey(d => d.TimeSlotId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("Contract_TimeTeamInfo_TimeSlot_fkey");
+        });
+
+        modelBuilder.Entity<Team>(entity =>
+        {
+            entity.HasKey(e => e.TeamId).HasName("Teams_pkey");
+
+            entity.Property(e => e.TeamId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.TeamNo).HasColumnType("character varying");
+        });
+
+        modelBuilder.Entity<TimeSlot>(entity =>
+        {
+            entity.HasKey(e => e.TimeSlotId).HasName("TimeSlot_pkey");
+
+            entity.ToTable("TimeSlot");
+
+            entity.Property(e => e.TimeSlotId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.Time).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("user_pkey");
