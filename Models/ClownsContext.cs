@@ -53,8 +53,8 @@ public partial class ClownsContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Contract_TimeTeamInfo_Contracts_fkey");
 
-            entity.HasOne(d => d.Time).WithMany(p => p.ContractTimeTeamInfos)
-                .HasForeignKey(d => d.TimeId)
+            entity.HasOne(d => d.Team).WithMany(p => p.ContractTimeTeamInfos)
+                .HasForeignKey(d => d.TeamId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Contract_TimeTeamInfo_Teams_fkey");
 

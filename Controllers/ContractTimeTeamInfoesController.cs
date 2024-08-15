@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
+using ClownsCRMAPI.CustomModels;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -19,12 +22,73 @@ namespace ClownsCRMAPI.Controllers
         {
             _context = context;
         }
+        [HttpGet("getAllContractsDateWise")]
+        public async Task<ActionResult<object>> GetContractTimeTeamInfos(DateTime? date)
+        {
+            // Start with the base query
+            IQueryable<ContractTimeTeamInfo> query = _context.ContractTimeTeamInfos
+                .Include(ctti => ctti.TimeSlot)
+                .Include(ctti => ctti.Team);
+
+            // Apply filtering if the date parameter is provided
+            if (date.HasValue)
+            {
+                var dateToCompare = date.Value.Date; // Extract the date part without the time component
+                query = query.Where(ctti => ctti.Date.ToDateTime(TimeOnly.MinValue).Date == dateToCompare);
+            }
+
+            // Execute the query and get the results
+            var listOfContractTimeInfo = await query.ToListAsync();
+
+            // Extract teams and time slots
+            var teams = listOfContractTimeInfo
+                .Select(ctti => new { ctti.Team.TeamId, ctti.Team.TeamNo })
+                .Distinct()
+                .ToList();
+
+            var timeSlots = listOfContractTimeInfo
+                .Select(ctti => new { ctti.TimeSlot.TimeSlotId, ctti.TimeSlot.Time })
+                .Distinct()
+                .ToList();
+
+            // Prepare the response
+            var response = new
+            {
+                contracts = listOfContractTimeInfo.Select(ctti => new
+                {
+                    ctti.ContractTimeTeamInfoId,
+                    Date = ctti.Date.ToString("yyyy-MM-dd"),
+                    TeamId = ctti.Team.TeamId,
+                    TeamNo = ctti.Team.TeamNo,
+                    TimeSlotId = ctti.TimeSlot.TimeSlotId,
+                    Time = ctti.TimeSlot.Time
+                }).ToList(),
+                teams,
+                timeSlots
+            };
+
+            return Ok(response);
+        }
+
 
         // GET: api/ContractTimeTeamInfoes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContractTimeTeamInfo>>> GetContractTimeTeamInfos()
         {
-            return await _context.ContractTimeTeamInfos.ToListAsync();
+            var listOfContractTimeInfo = await _context.ContractTimeTeamInfos
+                .Include(ctti => ctti.TimeSlot)
+                .Include(ctti => ctti.Team)
+                .ToListAsync();
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                WriteIndented = true // Optional: for pretty printing
+            };
+
+            var json = JsonSerializer.Serialize(listOfContractTimeInfo, jsonOptions);
+
+            return Content(json, "application/json");
         }
 
         // GET: api/ContractTimeTeamInfoes/5
@@ -75,12 +139,18 @@ namespace ClownsCRMAPI.Controllers
         // POST: api/ContractTimeTeamInfoes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ContractTimeTeamInfo>> PostContractTimeTeamInfo(ContractTimeTeamInfo contractTimeTeamInfo)
+        public async Task<ActionResult<ContractTimeTeamInfo>> PostContractTimeTeamInfo(ContractTimeTeamInfoModel contractTimeTeamInfo)
         {
-            _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo);
+            ContractTimeTeamInfo contractTimeTeamInfo1 = new ContractTimeTeamInfo();
+            contractTimeTeamInfo1.TeamId = contractTimeTeamInfo.TeamId;
+            contractTimeTeamInfo1.TimeSlotId = contractTimeTeamInfo.TimeSlotId;
+            contractTimeTeamInfo1.ContractId = contractTimeTeamInfo.ContractId;
+            // Convert DateTime to DateOnly
+            contractTimeTeamInfo1.Date = DateOnly.FromDateTime(contractTimeTeamInfo.Date);
+            _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo1);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetContractTimeTeamInfo", new { id = contractTimeTeamInfo.ContractTimeTeamInfoId }, contractTimeTeamInfo);
+            return CreatedAtAction("GetContractTimeTeamInfo", new { id = contractTimeTeamInfo1.ContractTimeTeamInfoId }, contractTimeTeamInfo1);
         }
 
         // DELETE: api/ContractTimeTeamInfoes/5

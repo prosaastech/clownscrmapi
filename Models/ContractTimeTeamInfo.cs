@@ -7,7 +7,7 @@ public partial class ContractTimeTeamInfo
 {
     public long ContractTimeTeamInfoId { get; set; }
 
-    public int TimeId { get; set; }
+    public int TeamId { get; set; }
 
     public int TimeSlotId { get; set; }
 
@@ -17,7 +17,7 @@ public partial class ContractTimeTeamInfo
 
     public virtual Contract? Contract { get; set; }
 
-    public virtual Team Time { get; set; } = null!;
+    public virtual Team Team { get; set; } = null!;
 
     public virtual TimeSlot TimeSlot { get; set; } = null!;
 }
