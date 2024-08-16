@@ -71,7 +71,28 @@ namespace ClownsCRMAPI.Controllers
         {
             return await _context.Users.ToListAsync();
         }
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // Retrieve the token from the Authorization header
+            var authorizationHeader = Request.Headers["Authorization"].ToString();
+            var token = authorizationHeader.Replace("Bearer ", "").Trim();
 
+            if (!string.IsNullOrEmpty(token))
+            {
+                // Add the token to the blacklist
+                TokenBlacklist.AddToBlacklist(token);
+            }
+            else
+            {
+                // Log or handle cases where the token is missing or invalid
+                return BadRequest("Token is missing or invalid");
+            }
+
+            // Return a successful response
+            return Ok();
+        }
+    
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)

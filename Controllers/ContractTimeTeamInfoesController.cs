@@ -9,9 +9,11 @@ using ClownsCRMAPI.Models;
 using ClownsCRMAPI.CustomModels;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ClownsCRMAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ContractTimeTeamInfoesController : ControllerBase
