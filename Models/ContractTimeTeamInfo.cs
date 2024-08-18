@@ -15,8 +15,6 @@ public partial class ContractTimeTeamInfo
 
     public DateOnly Date { get; set; }
 
-    public virtual Contract? Contract { get; set; }
-
     public virtual Team Team { get; set; } = null!;
 
     public virtual TimeSlot TimeSlot { get; set; } = null!;

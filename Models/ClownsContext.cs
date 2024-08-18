@@ -15,9 +15,21 @@ public partial class ClownsContext : DbContext
     {
     }
 
+    public virtual DbSet<AddressType> AddressTypes { get; set; }
+
+    public virtual DbSet<Child> Children { get; set; }
+
+    public virtual DbSet<ChildrenUnderAge> ChildrenUnderAges { get; set; }
+
     public virtual DbSet<Contract> Contracts { get; set; }
 
     public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
+
+    public virtual DbSet<HeardResource> HeardResources { get; set; }
+
+    public virtual DbSet<Relationship> Relationships { get; set; }
+
+    public virtual DbSet<State> States { get; set; }
 
     public virtual DbSet<Team> Teams { get; set; }
 
@@ -27,10 +39,36 @@ public partial class ClownsContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Clowns;Username=postgres;Password=123");
+        => optionsBuilder.UseNpgsql("Host=localhost:5432;Database=Clowns;Username=postgres;Password=123");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AddressType>(entity =>
+        {
+            entity.HasKey(e => e.AddressTypeId).HasName("AddressType_pkey");
+
+            entity.ToTable("AddressType");
+
+            entity.Property(e => e.AddressTypeId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.AddressTypeName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Child>(entity =>
+        {
+            entity.HasKey(e => e.ChildrenId).HasName("Children_pkey");
+
+            entity.Property(e => e.ChildrenId).UseIdentityAlwaysColumn();
+        });
+
+        modelBuilder.Entity<ChildrenUnderAge>(entity =>
+        {
+            entity.HasKey(e => e.ChildrenUnderAgeId).HasName("ChildrenUnderAge_pkey");
+
+            entity.ToTable("ChildrenUnderAge");
+
+            entity.Property(e => e.ChildrenUnderAgeId).UseIdentityAlwaysColumn();
+        });
+
         modelBuilder.Entity<Contract>(entity =>
         {
             entity.HasKey(e => e.ContractId).HasName("Contracts_pkey");
@@ -48,20 +86,45 @@ public partial class ClownsContext : DbContext
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("Contract_TimeTeamInfoId");
 
-            entity.HasOne(d => d.Contract).WithMany(p => p.ContractTimeTeamInfos)
-                .HasForeignKey(d => d.ContractId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("Contract_TimeTeamInfo_Contracts_fkey");
-
             entity.HasOne(d => d.Team).WithMany(p => p.ContractTimeTeamInfos)
                 .HasForeignKey(d => d.TeamId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("Contract_TimeTeamInfo_Teams_fkey");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TeamsContrant");
 
             entity.HasOne(d => d.TimeSlot).WithMany(p => p.ContractTimeTeamInfos)
                 .HasForeignKey(d => d.TimeSlotId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("Contract_TimeTeamInfo_TimeSlot_fkey");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TimeSlotContrant");
+        });
+
+        modelBuilder.Entity<HeardResource>(entity =>
+        {
+            entity.HasKey(e => e.HeardResourceId).HasName("HeardResource_pkey");
+
+            entity.ToTable("HeardResource");
+
+            entity.Property(e => e.HeardResourceId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.HeardResourceName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Relationship>(entity =>
+        {
+            entity.HasKey(e => e.RelationshipId).HasName("Relationship_pkey");
+
+            entity.ToTable("Relationship");
+
+            entity.Property(e => e.RelationshipId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.RelationshipName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<State>(entity =>
+        {
+            entity.HasKey(e => e.StateId).HasName("State_pkey");
+
+            entity.ToTable("State");
+
+            entity.Property(e => e.StateId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.StateName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Team>(entity =>

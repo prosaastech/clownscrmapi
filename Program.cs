@@ -109,3 +109,6 @@ app.UseMiddleware<TokenValidationMiddleware>(); // Add your custom middleware he
 
 app.MapControllers(); // Map controllers or other endpoints as needed
 app.Run();
+
+
+//dotnet ef dbcontext scaffold "Host=localhost:5432;Database=Clowns;Username=postgres;Password=123" Npgsql.EntityFrameworkCore.PostgreSQL -o Models
