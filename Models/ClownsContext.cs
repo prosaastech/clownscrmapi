@@ -37,6 +37,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<Venue> Venues { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseNpgsql("Host=localhost:5432;Database=Clowns;Username=postgres;Password=123");
@@ -155,6 +157,16 @@ public partial class ClownsContext : DbContext
             entity.Property(e => e.EmailAddress).HasMaxLength(100);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.Username).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Venue>(entity =>
+        {
+            entity.HasKey(e => e.VenueId).HasName("Venue_pkey");
+
+            entity.ToTable("Venue");
+
+            entity.Property(e => e.VenueId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.VenueName).HasColumnType("character varying");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using ClownsCRMAPI.CustomModels;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace ClownsCRMAPI.Controllers
 {
