@@ -25,6 +25,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
 
+    public virtual DbSet<EventType> EventTypes { get; set; }
+
     public virtual DbSet<HeardResource> HeardResources { get; set; }
 
     public virtual DbSet<Relationship> Relationships { get; set; }
@@ -97,6 +99,16 @@ public partial class ClownsContext : DbContext
                 .HasForeignKey(d => d.TimeSlotId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("TimeSlotContrant");
+        });
+
+        modelBuilder.Entity<EventType>(entity =>
+        {
+            entity.HasKey(e => e.EventTypeId).HasName("EventType_pkey");
+
+            entity.ToTable("EventType");
+
+            entity.Property(e => e.EventTypeId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.EventTypeName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<HeardResource>(entity =>
