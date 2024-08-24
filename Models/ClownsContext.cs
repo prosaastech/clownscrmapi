@@ -15,7 +15,13 @@ public partial class ClownsContext : DbContext
     {
     }
 
+    public virtual DbSet<Addon> Addons { get; set; }
+
     public virtual DbSet<AddressType> AddressTypes { get; set; }
+
+    public virtual DbSet<Bounce> Bounces { get; set; }
+
+    public virtual DbSet<Character> Characters { get; set; }
 
     public virtual DbSet<Child> Children { get; set; }
 
@@ -47,6 +53,14 @@ public partial class ClownsContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Addon>(entity =>
+        {
+            entity.HasKey(e => e.AddonId).HasName("Addons_pkey");
+
+            entity.Property(e => e.AddonId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.AddonName).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<AddressType>(entity =>
         {
             entity.HasKey(e => e.AddressTypeId).HasName("AddressType_pkey");
@@ -55,6 +69,22 @@ public partial class ClownsContext : DbContext
 
             entity.Property(e => e.AddressTypeId).UseIdentityAlwaysColumn();
             entity.Property(e => e.AddressTypeName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Bounce>(entity =>
+        {
+            entity.HasKey(e => e.BounceId).HasName("Bounces_pkey");
+
+            entity.Property(e => e.BounceId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.BounceName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Character>(entity =>
+        {
+            entity.HasKey(e => e.CharacterId).HasName("Characters_pkey");
+
+            entity.Property(e => e.CharacterId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CharacterName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Child>(entity =>
