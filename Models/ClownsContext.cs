@@ -33,6 +33,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
 
+    public virtual DbSet<CustomerInfo> CustomerInfos { get; set; }
+
     public virtual DbSet<EventType> EventTypes { get; set; }
 
     public virtual DbSet<HeardResource> HeardResources { get; set; }
@@ -143,6 +145,24 @@ public partial class ClownsContext : DbContext
                 .HasForeignKey(d => d.TimeSlotId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("TimeSlotContrant");
+        });
+
+        modelBuilder.Entity<CustomerInfo>(entity =>
+        {
+            entity.HasKey(e => e.CustomerId).HasName("CustomerInfo_pkey");
+
+            entity.ToTable("CustomerInfo");
+
+            entity.Property(e => e.CustomerId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.AlternatePhone).HasMaxLength(100);
+            entity.Property(e => e.City).HasMaxLength(100);
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+            entity.Property(e => e.EmailAddress).HasMaxLength(100);
+            entity.Property(e => e.FirstName).HasMaxLength(300);
+            entity.Property(e => e.HonoreeName).HasMaxLength(300);
+            entity.Property(e => e.LastName).HasMaxLength(200);
+            entity.Property(e => e.PhoneNo).HasMaxLength(100);
         });
 
         modelBuilder.Entity<EventType>(entity =>
