@@ -21,6 +21,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<Bounce> Bounces { get; set; }
 
+    public virtual DbSet<Category> Categories { get; set; }
+
     public virtual DbSet<Character> Characters { get; set; }
 
     public virtual DbSet<Child> Children { get; set; }
@@ -34,6 +36,8 @@ public partial class ClownsContext : DbContext
     public virtual DbSet<EventType> EventTypes { get; set; }
 
     public virtual DbSet<HeardResource> HeardResources { get; set; }
+
+    public virtual DbSet<PartyPackage> PartyPackages { get; set; }
 
     public virtual DbSet<Relationship> Relationships { get; set; }
 
@@ -77,6 +81,16 @@ public partial class ClownsContext : DbContext
 
             entity.Property(e => e.BounceId).UseIdentityAlwaysColumn();
             entity.Property(e => e.BounceName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => e.CategoryId).HasName("Category_pkey");
+
+            entity.ToTable("Category");
+
+            entity.Property(e => e.CategoryId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CategoryName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Character>(entity =>
@@ -149,6 +163,16 @@ public partial class ClownsContext : DbContext
 
             entity.Property(e => e.HeardResourceId).UseIdentityAlwaysColumn();
             entity.Property(e => e.HeardResourceName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<PartyPackage>(entity =>
+        {
+            entity.HasKey(e => e.PartyPackageId).HasName("PartyPackage_pkey");
+
+            entity.ToTable("PartyPackage");
+
+            entity.Property(e => e.PartyPackageId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.PartyPackageName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Relationship>(entity =>
