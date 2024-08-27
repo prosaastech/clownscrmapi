@@ -31,6 +31,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<Contract> Contracts { get; set; }
 
+    public virtual DbSet<ContractEventInfo> ContractEventInfos { get; set; }
+
     public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
 
     public virtual DbSet<CustomerInfo> CustomerInfos { get; set; }
@@ -124,6 +126,37 @@ public partial class ClownsContext : DbContext
             entity.HasKey(e => e.ContractId).HasName("Contracts_pkey");
 
             entity.Property(e => e.ContractId).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<ContractEventInfo>(entity =>
+        {
+            entity.HasKey(e => e.ContractEventInfoId).HasName("Contract_EventInfo_pkey");
+
+            entity.ToTable("Contract_EventInfo");
+
+            entity.Property(e => e.ContractEventInfoId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("Contract_EventInfoId");
+            entity.Property(e => e.EventInfoEndClownHour).HasColumnName("EventInfo_EndClownHour");
+            entity.Property(e => e.EventInfoEventAddress)
+                .HasMaxLength(1000)
+                .HasColumnName("EventInfo_EventAddress");
+            entity.Property(e => e.EventInfoEventCity)
+                .HasMaxLength(100)
+                .HasColumnName("EventInfo_EventCity");
+            entity.Property(e => e.EventInfoEventDate).HasColumnName("EventInfo_EventDate");
+            entity.Property(e => e.EventInfoEventState).HasColumnName("EventInfo_EventState");
+            entity.Property(e => e.EventInfoEventType).HasColumnName("EventInfo_EventType");
+            entity.Property(e => e.EventInfoEventZip).HasColumnName("EventInfo_EventZip");
+            entity.Property(e => e.EventInfoNumberOfChildren).HasColumnName("EventInfo_NumberOfChildren");
+            entity.Property(e => e.EventInfoPartyEndTime).HasColumnName("EventInfo_PartyEndTime");
+            entity.Property(e => e.EventInfoPartyStartTime).HasColumnName("EventInfo_PartyStartTime");
+            entity.Property(e => e.EventInfoStartClownHour).HasColumnName("EventInfo_StartClownHour");
+            entity.Property(e => e.EventInfoTeamAssigned).HasColumnName("EventInfo_TeamAssigned");
+            entity.Property(e => e.EventInfoVenue).HasColumnName("EventInfo_Venue");
+            entity.Property(e => e.EventInfoVenueDescription)
+                .HasMaxLength(1000)
+                .HasColumnName("EventInfo_VenueDescription");
         });
 
         modelBuilder.Entity<ContractTimeTeamInfo>(entity =>
