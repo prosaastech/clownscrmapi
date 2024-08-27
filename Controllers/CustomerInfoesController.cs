@@ -77,11 +77,52 @@ namespace ClownsCRMAPI.Controllers
         [HttpPost("SaveCustomer")]
         public async Task<ActionResult<CustomerInfo>> PostCustomerInfo(CustomerInfo customerInfo)
         {
-            _context.CustomerInfos.Add(customerInfo);
-            await _context.SaveChangesAsync();
+            if (customerInfo.CustomerId == 0)
+            {
+                // Add new customer
+                _context.CustomerInfos.Add(customerInfo);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCustomerInfo", new { id = customerInfo.CustomerId }, customerInfo);
+                return CreatedAtAction("GetCustomerInfo", new { id = customerInfo.CustomerId }, customerInfo);
+            }
+            else
+            {
+                // Update existing customer
+                var existingCustomer = await _context.CustomerInfos.FindAsync(customerInfo.CustomerId);
+                if (existingCustomer == null)
+                {
+                    return NotFound($"Customer with ID {customerInfo.CustomerId} not found.");
+                }
+
+                // Update the existing customer properties
+                existingCustomer.FirstName = customerInfo.FirstName;
+                existingCustomer.LastName = customerInfo.LastName;
+                existingCustomer.EmailAddress = customerInfo.EmailAddress;
+                existingCustomer.PhoneNo = customerInfo.PhoneNo;
+                existingCustomer.RelationshipId = customerInfo.RelationshipId;
+                existingCustomer.OtherRelationshipId = customerInfo.OtherRelationshipId;
+                existingCustomer.AlternatePhone = customerInfo.AlternatePhone;
+                existingCustomer.Address = customerInfo.Address;
+                existingCustomer.AddressTypeId = customerInfo.AddressTypeId;
+                existingCustomer.City = customerInfo.City;
+                existingCustomer.Zip = customerInfo.Zip;
+                existingCustomer.StateId = customerInfo.StateId;
+                existingCustomer.ChildrenId = customerInfo.ChildrenId;
+                existingCustomer.ChildrenUnderAgeId = customerInfo.ChildrenUnderAgeId;
+                existingCustomer.HonoreeName = customerInfo.HonoreeName;
+                existingCustomer.HonoreeAge = customerInfo.HonoreeAge;
+                existingCustomer.HeardResourceId = customerInfo.HeardResourceId;
+                //existingCustomer.SpecifyOothther = customerInfo.SpecifyOther;
+                existingCustomer.Comments = customerInfo.Comments;
+                // Update other fields as needed
+
+                _context.Entry(existingCustomer).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return Ok(existingCustomer);
+            }
         }
+
 
         // DELETE: api/CustomerInfoes/5
         [HttpDelete("{id}")]
