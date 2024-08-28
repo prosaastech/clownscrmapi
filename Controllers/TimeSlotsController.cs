@@ -26,6 +26,7 @@ namespace ClownsCRMAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TimeSlot>>> GetTimeSlot()
         {
+            var item = _context.TimeSlots.ToList();
             return await _context.TimeSlots.ToListAsync();
         }
 

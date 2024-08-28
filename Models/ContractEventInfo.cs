@@ -13,15 +13,7 @@ public partial class ContractEventInfo
 
     public DateOnly? EventInfoEventDate { get; set; }
 
-    public TimeOnly? EventInfoPartyStartTime { get; set; }
-
-    public TimeOnly? EventInfoPartyEndTime { get; set; }
-
     public int? EventInfoTeamAssigned { get; set; }
-
-    public TimeOnly? EventInfoStartClownHour { get; set; }
-
-    public TimeOnly? EventInfoEndClownHour { get; set; }
 
     public string? EventInfoEventAddress { get; set; }
 
@@ -38,4 +30,12 @@ public partial class ContractEventInfo
     public int? ContractId { get; set; }
 
     public int? CustomerId { get; set; }
+
+    public TimeOnly? EventInfoPartyStartTime { get; set; }
+
+    public TimeOnly? EventInfoPartyEndTime { get; set; }
+
+    public TimeOnly? EventInfoStartClownHour { get; set; }
+
+    public TimeOnly? EventInfoEndClownHour { get; set; }
 }

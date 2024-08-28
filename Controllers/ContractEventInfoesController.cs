@@ -166,15 +166,64 @@ namespace ClownsCRMAPI.Controllers
             contractEventInfo.ContractId = model.ContractId;
             contractEventInfo.CustomerId = model.CustomerId;
 
+            bool IsNew = false;
             if (model.ContractEventInfoId == 0)
             {
-                
-                _context.ContractEventInfos.Add(contractEventInfo);
+                 _context.ContractEventInfos.Add(contractEventInfo);
+                IsNew = true;
             }
             // Save changes to the database
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); 
+
+            if (IsNew)
+            {
+                await SaveContractAsync(model);
+            }
 
             return CreatedAtAction("GetContractEventInfo", new { id = contractEventInfo.ContractEventInfoId }, contractEventInfo);
+        }
+        private async Task SaveContractAsync(EventInfoModel eventInfoModel)
+        {
+            try
+            {
+                // Auto-generate contractId by incrementing the last contractId in the database
+                int contractId = (_context.ContractTimeTeamInfos.Max(c => (int?)c.ContractId) ?? 0) + 1;
+
+                // Prepare the data for both start and end times
+                var timeSlots = new[]
+                {
+                    eventInfoModel.EventInfoPartyStartTime,
+                    eventInfoModel.EventInfoPartyEndTime
+                };
+
+                foreach (var timeSlot in timeSlots)
+                {
+                    var timeSlotEntity = _context.TimeSlots.FirstOrDefault(o => o.Time == timeSlot);
+                    if (timeSlotEntity == null)
+                    {
+                        throw new Exception($"Time slot '{timeSlot}' not found in the database.");
+                    }
+
+                    var contractTimeTeamInfo = new ContractTimeTeamInfo
+                    {
+                        ContractId = contractId,
+                        TeamId = Convert.ToInt32(eventInfoModel.EventInfoTeamAssigned),
+                        CustomerId = eventInfoModel.CustomerId,
+                        Date = DateOnly.FromDateTime(DateTime.Now),
+                        TimeSlotId = timeSlotEntity.TimeSlotId
+                    };
+
+                    _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
         }
 
 
