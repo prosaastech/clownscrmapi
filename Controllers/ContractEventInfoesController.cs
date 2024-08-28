@@ -182,6 +182,45 @@ namespace ClownsCRMAPI.Controllers
 
             return CreatedAtAction("GetContractEventInfo", new { id = contractEventInfo.ContractEventInfoId }, contractEventInfo);
         }
+        private List<string> GenerateTimeSlots(string startTime, string endTime, int intervalMinutes = 30)
+        {
+            var slots = new List<string>();
+            var start = ParseTime(startTime);
+            var end = ParseTime(endTime);
+
+            if (start == end)
+            {
+                // If start and end times are the same, only add one slot
+                slots.Add(FormatTime(start));
+            }
+            else
+            {
+                // Generate slots in intervals
+                for (var time = start; time <= end; time = time.AddMinutes(intervalMinutes))
+                {
+                    slots.Add(FormatTime(time));
+                    // Handle case where the interval might surpass the end time
+                    if (time.AddMinutes(intervalMinutes) > end)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return slots;
+        }
+
+
+        private DateTime ParseTime(string timeStr)
+        {
+            return DateTime.ParseExact(timeStr, "hh:mm tt", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private string FormatTime(DateTime time)
+        {
+            return time.ToString("hh:mm tt");
+        }
+
         private async Task SaveContractAsync(EventInfoModel eventInfoModel)
         {
             try
@@ -189,12 +228,11 @@ namespace ClownsCRMAPI.Controllers
                 // Auto-generate contractId by incrementing the last contractId in the database
                 int contractId = (_context.ContractTimeTeamInfos.Max(c => (int?)c.ContractId) ?? 0) + 1;
 
-                // Prepare the data for both start and end times
-                var timeSlots = new[]
-                {
+                // Generate time slots
+                var timeSlots = GenerateTimeSlots(
                     eventInfoModel.EventInfoPartyStartTime,
                     eventInfoModel.EventInfoPartyEndTime
-                };
+                );
 
                 foreach (var timeSlot in timeSlots)
                 {
@@ -225,7 +263,6 @@ namespace ClownsCRMAPI.Controllers
                 throw;
             }
         }
-
 
         // DELETE: api/ContractEventInfoes/5
         [HttpDelete("{id}")]
