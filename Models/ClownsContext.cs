@@ -21,6 +21,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<Bounce> Bounces { get; set; }
 
+    public virtual DbSet<CardOption> CardOptions { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Character> Characters { get; set; }
@@ -85,6 +87,14 @@ public partial class ClownsContext : DbContext
 
             entity.Property(e => e.BounceId).UseIdentityAlwaysColumn();
             entity.Property(e => e.BounceName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<CardOption>(entity =>
+        {
+            entity.HasKey(e => e.CardOptionId).HasName("CardOptions_pkey");
+
+            entity.Property(e => e.CardOptionId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CardOptionName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Category>(entity =>
