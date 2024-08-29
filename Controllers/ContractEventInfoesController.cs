@@ -247,8 +247,10 @@ namespace ClownsCRMAPI.Controllers
                         ContractId = contractId,
                         TeamId = Convert.ToInt32(eventInfoModel.EventInfoTeamAssigned),
                         CustomerId = eventInfoModel.CustomerId,
-                        Date = DateOnly.FromDateTime(DateTime.Now),
-                        TimeSlotId = timeSlotEntity.TimeSlotId
+                        Date = DateOnly.FromDateTime(eventInfoModel.selectedDate),
+                        TimeSlotId = timeSlotEntity.TimeSlotId,
+                        EntryDate = DateOnly.FromDateTime(DateTime.Now)
+
                     };
 
                     _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo);

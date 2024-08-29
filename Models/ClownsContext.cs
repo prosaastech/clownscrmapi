@@ -196,6 +196,9 @@ public partial class ClownsContext : DbContext
             entity.Property(e => e.HonoreeName).HasMaxLength(300);
             entity.Property(e => e.LastName).HasMaxLength(200);
             entity.Property(e => e.PhoneNo).HasMaxLength(100);
+            entity.Property(e => e.SpecifyOther)
+                .HasMaxLength(100)
+                .HasColumnName("specifyOther");
         });
 
         modelBuilder.Entity<EventType>(entity =>

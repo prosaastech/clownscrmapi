@@ -112,7 +112,7 @@ namespace ClownsCRMAPI.Controllers
                 existingCustomer.HonoreeName = customerInfo.HonoreeName;
                 existingCustomer.HonoreeAge = customerInfo.HonoreeAge;
                 existingCustomer.HeardResourceId = customerInfo.HeardResourceId;
-                //existingCustomer.SpecifyOothther = customerInfo.SpecifyOther;
+                existingCustomer.SpecifyOther = customerInfo.SpecifyOther;
                 existingCustomer.Comments = customerInfo.Comments;
                 // Update other fields as needed
 

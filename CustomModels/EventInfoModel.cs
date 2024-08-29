@@ -35,5 +35,7 @@
         public int? ContractId { get; set; }
 
         public int? CustomerId { get; set; }
+
+        public DateTime selectedDate { get; set; }
     }
 }
