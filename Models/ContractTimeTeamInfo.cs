@@ -19,6 +19,10 @@ public partial class ContractTimeTeamInfo
 
     public DateOnly? EntryDate { get; set; }
 
+    public int? BranchId { get; set; }
+
+    public int? CompanyId { get; set; }
+
     public virtual Team Team { get; set; } = null!;
 
     public virtual TimeSlot TimeSlot { get; set; } = null!;

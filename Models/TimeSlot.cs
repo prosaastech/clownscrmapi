@@ -9,5 +9,9 @@ public partial class TimeSlot
 
     public string Time { get; set; } = null!;
 
+    public int? BranchId { get; set; }
+
+    public int? CompanyId { get; set; }
+
     public virtual ICollection<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; } = new List<ContractTimeTeamInfo>();
 }

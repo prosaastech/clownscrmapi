@@ -10,4 +10,8 @@ public partial class Character
     public string CharacterName { get; set; } = null!;
 
     public double Price { get; set; }
+
+    public int? BranchId { get; set; }
+
+    public int? CompanyId { get; set; }
 }

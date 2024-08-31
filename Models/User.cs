@@ -14,4 +14,8 @@ public partial class User
     public string Password { get; set; } = null!;
 
     public bool? IsActive { get; set; }
+
+    public int? BranchId { get; set; }
+
+    public int? CompanyId { get; set; }
 }

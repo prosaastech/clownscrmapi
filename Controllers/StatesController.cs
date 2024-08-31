@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -26,7 +27,15 @@ namespace ClownsCRMAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<State>>> GetStates()
         {
-            return await _context.States.ToListAsync();
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+            var statesQuery = _context.States.AsQueryable();
+            statesQuery = statesQuery.Where(o => o.BranchId == null || o.BranchId == BranchId);
+            statesQuery = statesQuery.Where(o => o.CompanyId == null || o.CompanyId == CompanyId);
+
+
+            return await statesQuery.ToListAsync();
         }
 
         // GET: api/States/5

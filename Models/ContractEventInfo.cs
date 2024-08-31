@@ -38,4 +38,8 @@ public partial class ContractEventInfo
     public TimeOnly? EventInfoStartClownHour { get; set; }
 
     public TimeOnly? EventInfoEndClownHour { get; set; }
+
+    public int? BranchId { get; set; }
+
+    public int? CompanyId { get; set; }
 }

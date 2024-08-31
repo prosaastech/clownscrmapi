@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -26,8 +27,18 @@ namespace ClownsCRMAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TimeSlot>>> GetTimeSlot()
         {
-            var item = _context.TimeSlots.ToList();
-            return await _context.TimeSlots.ToListAsync();
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+            var timeSlotsQuery = _context.TimeSlots.AsQueryable();
+
+            // Apply filters based on available values
+
+            timeSlotsQuery = timeSlotsQuery.Where(o => o.BranchId == null || o.BranchId == BranchId);
+            timeSlotsQuery = timeSlotsQuery.Where(o => o.CompanyId == null || o.CompanyId == CompanyId);
+
+
+            return await timeSlotsQuery.ToListAsync();
         }
 
         // GET: api/TimeSlots/5

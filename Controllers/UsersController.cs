@@ -53,8 +53,10 @@ namespace ClownsCRMAPI.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                new Claim(ClaimTypes.Name, loginUser.Username),
-                new Claim(ClaimTypes.Email, loginUser.EmailAddress)
+            new Claim(ClaimTypes.Name, loginUser.Username),
+            new Claim(ClaimTypes.Email, loginUser.EmailAddress),
+            new Claim("branchId", loginUser.BranchId.ToString()), // Add BranchId claim
+            new Claim("companyId", loginUser.CompanyId.ToString()) // Add CompanyId claim
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 Issuer = _configuration["Jwt:Issuer"],
@@ -66,6 +68,9 @@ namespace ClownsCRMAPI.Controllers
 
             return Ok(new { Token = tokenString });
         }
+
+
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {

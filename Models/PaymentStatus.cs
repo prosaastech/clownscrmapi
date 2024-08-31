@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace ClownsCRMAPI.Models;
 
-public partial class Child
+public partial class PaymentStatus
 {
-    public int ChildrenId { get; set; }
+    public int PaymentStatusId { get; set; }
 
-    public int ChildrenNo { get; set; }
+    public string PaymentStatusName { get; set; } = null!;
 
     public int? BranchId { get; set; }
 

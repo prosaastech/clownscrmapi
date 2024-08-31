@@ -31,8 +31,6 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<ChildrenUnderAge> ChildrenUnderAges { get; set; }
 
-    public virtual DbSet<Contract> Contracts { get; set; }
-
     public virtual DbSet<ContractEventInfo> ContractEventInfos { get; set; }
 
     public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
@@ -44,6 +42,8 @@ public partial class ClownsContext : DbContext
     public virtual DbSet<HeardResource> HeardResources { get; set; }
 
     public virtual DbSet<PartyPackage> PartyPackages { get; set; }
+
+    public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
 
     public virtual DbSet<Relationship> Relationships { get; set; }
 
@@ -129,13 +129,6 @@ public partial class ClownsContext : DbContext
             entity.ToTable("ChildrenUnderAge");
 
             entity.Property(e => e.ChildrenUnderAgeId).UseIdentityAlwaysColumn();
-        });
-
-        modelBuilder.Entity<Contract>(entity =>
-        {
-            entity.HasKey(e => e.ContractId).HasName("Contracts_pkey");
-
-            entity.Property(e => e.ContractId).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<ContractEventInfo>(entity =>
@@ -239,6 +232,16 @@ public partial class ClownsContext : DbContext
 
             entity.Property(e => e.PartyPackageId).UseIdentityAlwaysColumn();
             entity.Property(e => e.PartyPackageName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<PaymentStatus>(entity =>
+        {
+            entity.HasKey(e => e.PaymentStatusId).HasName("PaymentStatus_pkey");
+
+            entity.ToTable("PaymentStatus");
+
+            entity.Property(e => e.PaymentStatusId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.PaymentStatusName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Relationship>(entity =>

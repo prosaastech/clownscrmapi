@@ -44,4 +44,8 @@ public partial class CustomerInfo
     public string? Comments { get; set; }
 
     public string? SpecifyOther { get; set; }
+
+    public int? BranchId { get; set; }
+
+    public int? CompanyId { get; set; }
 }
