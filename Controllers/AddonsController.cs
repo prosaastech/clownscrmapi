@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -24,7 +25,14 @@ namespace ClownsCRMAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Addon>>> GetAddons()
         {
-            return await _context.Addons.ToListAsync();
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+            var AddonsQuery = _context.Addons.AsQueryable();
+            AddonsQuery = AddonsQuery.Where(o => o.BranchId == null || o.BranchId == BranchId);
+            AddonsQuery = AddonsQuery.Where(o => o.CompanyId == null || o.CompanyId == CompanyId);
+
+            return await AddonsQuery.ToListAsync();
         }
 
         // GET: api/Addons/5

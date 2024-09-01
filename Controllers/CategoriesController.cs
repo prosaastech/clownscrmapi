@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -24,7 +25,14 @@ namespace ClownsCRMAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+            var CategoriesQuery = _context.Categories.AsQueryable();
+            CategoriesQuery = CategoriesQuery.Where(o => o.BranchId == null || o.BranchId == BranchId);
+            CategoriesQuery = CategoriesQuery.Where(o => o.CompanyId == null || o.CompanyId == CompanyId);
+
+            return await CategoriesQuery.ToListAsync();
         }
 
         // GET: api/Categories/5

@@ -119,6 +119,9 @@ namespace ClownsCRMAPI.Controllers
         [HttpPost("SaveEventInfo")]
         public async Task<ActionResult<ContractEventInfo>> PostContractEventInfo(EventInfoModel model)
         {
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
             ContractEventInfo contractEventInfo;
 
             if (model.ContractEventInfoId == 0)
@@ -165,6 +168,8 @@ namespace ClownsCRMAPI.Controllers
             contractEventInfo.EventInfoVenueDescription = model.EventInfoVenueDescription;
             contractEventInfo.ContractId = model.ContractId;
             contractEventInfo.CustomerId = model.CustomerId;
+            contractEventInfo.BranchId = BranchId;
+            contractEventInfo.CompanyId = CompanyId;
 
             bool IsNew = false;
             if (model.ContractEventInfoId == 0)
@@ -223,6 +228,9 @@ namespace ClownsCRMAPI.Controllers
 
         private async Task SaveContractAsync(EventInfoModel eventInfoModel)
         {
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
             try
             {
                 // Auto-generate contractId by incrementing the last contractId in the database
@@ -249,9 +257,10 @@ namespace ClownsCRMAPI.Controllers
                         CustomerId = eventInfoModel.CustomerId,
                         Date = DateOnly.FromDateTime(eventInfoModel.selectedDate),
                         TimeSlotId = timeSlotEntity.TimeSlotId,
-                        EntryDate = DateOnly.FromDateTime(DateTime.Now)
-
-                    };
+                        EntryDate = DateOnly.FromDateTime(DateTime.Now),
+                        BranchId = BranchId,
+                        CompanyId = CompanyId
+                     };
 
                     _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo);
                 }

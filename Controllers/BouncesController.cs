@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -24,7 +25,14 @@ namespace ClownsCRMAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Bounce>>> GetBounces()
         {
-            return await _context.Bounces.ToListAsync();
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+            var BouncesQuery = _context.Bounces.AsQueryable();
+            BouncesQuery = BouncesQuery.Where(o => o.BranchId == null || o.BranchId == BranchId);
+            BouncesQuery = BouncesQuery.Where(o => o.CompanyId == null || o.CompanyId == CompanyId);
+
+            return await BouncesQuery.ToListAsync();
         }
 
         // GET: api/Bounces/5

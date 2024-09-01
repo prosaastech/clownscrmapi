@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -26,7 +27,14 @@ namespace ClownsCRMAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AddressType>>> GetAddressTypes()
         {
-            return await _context.AddressTypes.ToListAsync();
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+            var AddressTypesQuery = _context.AddressTypes.AsQueryable();
+            AddressTypesQuery = AddressTypesQuery.Where(o => o.BranchId == null || o.BranchId == BranchId);
+            AddressTypesQuery = AddressTypesQuery.Where(o => o.CompanyId == null || o.CompanyId == CompanyId);
+
+            return await AddressTypesQuery.ToListAsync();
         }
 
         // GET: api/AddressTypes/5

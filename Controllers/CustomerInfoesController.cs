@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -77,6 +78,10 @@ namespace ClownsCRMAPI.Controllers
         [HttpPost("SaveCustomer")]
         public async Task<ActionResult<CustomerInfo>> PostCustomerInfo(CustomerInfo customerInfo)
         {
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+  
             if (customerInfo.CustomerId == 0)
             {
                 // Add new customer
@@ -114,6 +119,9 @@ namespace ClownsCRMAPI.Controllers
                 existingCustomer.HeardResourceId = customerInfo.HeardResourceId;
                 existingCustomer.SpecifyOther = customerInfo.SpecifyOther;
                 existingCustomer.Comments = customerInfo.Comments;
+                existingCustomer.BranchId = BranchId;
+                existingCustomer.CompanyId = CompanyId;
+
                 // Update other fields as needed
 
                 _context.Entry(existingCustomer).State = EntityState.Modified;
