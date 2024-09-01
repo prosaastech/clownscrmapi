@@ -33,6 +33,14 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<ContractEventInfo> ContractEventInfos { get; set; }
 
+    public virtual DbSet<ContractPackageInfo> ContractPackageInfos { get; set; }
+
+    public virtual DbSet<ContractPackageInfoAddon> ContractPackageInfoAddons { get; set; }
+
+    public virtual DbSet<ContractPackageInfoBounce> ContractPackageInfoBounces { get; set; }
+
+    public virtual DbSet<ContractPackageInfoCharacter> ContractPackageInfoCharacters { get; set; }
+
     public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
 
     public virtual DbSet<CustomerInfo> CustomerInfos { get; set; }
@@ -160,6 +168,77 @@ public partial class ClownsContext : DbContext
             entity.Property(e => e.EventInfoVenueDescription)
                 .HasMaxLength(1000)
                 .HasColumnName("EventInfo_VenueDescription");
+        });
+
+        modelBuilder.Entity<ContractPackageInfo>(entity =>
+        {
+            entity.HasKey(e => e.PackageInfoId).HasName("Contract_PackageInfo_pkey");
+
+            entity.ToTable("Contract_PackageInfo");
+
+            entity.Property(e => e.PackageInfoId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.Deposit).HasPrecision(18, 2);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.ParkingFees).HasPrecision(18, 2);
+            entity.Property(e => e.Price).HasPrecision(18, 2);
+            entity.Property(e => e.Subtract).HasPrecision(18, 2);
+            entity.Property(e => e.Tax).HasPrecision(18, 2);
+            entity.Property(e => e.Tip).HasPrecision(18, 2);
+            entity.Property(e => e.Tip2).HasPrecision(18, 2);
+            entity.Property(e => e.TollFees).HasPrecision(18, 2);
+            entity.Property(e => e.TotalBalance).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<ContractPackageInfoAddon>(entity =>
+        {
+            entity.HasKey(e => e.ContractPackageInfoAddonId).HasName("Contract_PackageInfo_Addon_pkey");
+
+            entity.ToTable("Contract_PackageInfo_Addon");
+
+            entity.Property(e => e.ContractPackageInfoAddonId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("Contract_PackageInfo_AddonId");
+            entity.Property(e => e.Price).HasPrecision(18, 2);
+
+            entity.HasOne(d => d.PackageInfo).WithMany(p => p.ContractPackageInfoAddons)
+                .HasForeignKey(d => d.PackageInfoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("PackageInfo_Addon");
+        });
+
+        modelBuilder.Entity<ContractPackageInfoBounce>(entity =>
+        {
+            entity.HasKey(e => e.ContractPackageInfoBounceId).HasName("Contract_PackageInfo_Bounce_pkey");
+
+            entity.ToTable("Contract_PackageInfo_Bounce");
+
+            entity.Property(e => e.ContractPackageInfoBounceId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("Contract_PackageInfo_BounceId");
+            entity.Property(e => e.Price).HasPrecision(18, 2);
+
+            entity.HasOne(d => d.PackageInfo).WithMany(p => p.ContractPackageInfoBounces)
+                .HasForeignKey(d => d.PackageInfoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("PackageInfo_Bounce");
+        });
+
+        modelBuilder.Entity<ContractPackageInfoCharacter>(entity =>
+        {
+            entity.HasKey(e => e.ContractPackageInfoCharacterId).HasName("Contract_PackageInfo_Character_pkey");
+
+            entity.ToTable("Contract_PackageInfo_Character");
+
+            entity.Property(e => e.ContractPackageInfoCharacterId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("Contract_PackageInfo_CharacterId");
+            entity.Property(e => e.CharacterId).HasColumnType("character varying");
+            entity.Property(e => e.Price).HasPrecision(18, 2);
+
+            entity.HasOne(d => d.PackageInfo).WithMany(p => p.ContractPackageInfoCharacters)
+                .HasForeignKey(d => d.PackageInfoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("PackageInfo");
         });
 
         modelBuilder.Entity<ContractTimeTeamInfo>(entity =>
