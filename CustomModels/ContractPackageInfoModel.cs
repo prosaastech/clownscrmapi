@@ -39,10 +39,36 @@ namespace ClownsCRMAPI.CustomModels
 
         public int? CompanyId { get; set; }
 
-        public  List<Addon> Addons { get; set; } = new List<Addon>();
+        public List<AddonModel> Addons { get; set; } //= new List<Addon>();
 
-        public  List<Bounce> Bounces { get; set; } = new List<Bounce>();
+        public List<BounceModel> Bounces { get; set; }// = new List<Bounce>();
 
-        public  List<Character> Characters { get; set; } = new List<Character>();
+        public List<CharacterModel> Characters { get; set; }// = new List<Character>();
+        //public Addon[] Addons { get; set; } = new Addon[0];
+
+        //public Bounce[] Bounces { get; set; } = new Bounce[0];
+
+        //public Character[] Characters { get; set; } = new Character[0];
+
+
     }
+    public class CharacterModel
+    {
+        public int CharacterId { get; set; }
+        public decimal Price { get; set; }
+    }
+
+    public  class AddonModel
+    {
+        public int AddonId { get; set; }
+        public double Price { get; set; }
+    }
+
+    public class BounceModel
+    {
+        public int BounceId { get; set; }
+
+        public double Price { get; set; }
+    }
+
 }
