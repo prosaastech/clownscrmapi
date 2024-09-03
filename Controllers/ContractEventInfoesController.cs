@@ -183,6 +183,10 @@ namespace ClownsCRMAPI.Controllers
             if (IsNew)
             {
                 await SaveContractAsync(model);
+                contractEventInfo.ContractId = globalContractId;
+                _context.ContractEventInfos.Update(contractEventInfo);
+                await _context.SaveChangesAsync();
+
             }
 
             return CreatedAtAction("GetContractEventInfo", new { id = contractEventInfo.ContractEventInfoId }, contractEventInfo);
@@ -226,6 +230,7 @@ namespace ClownsCRMAPI.Controllers
             return time.ToString("hh:mm tt");
         }
 
+        int globalContractId = 0;
         private async Task SaveContractAsync(EventInfoModel eventInfoModel)
         {
             int BranchId = TokenHelper.GetBranchId(HttpContext);
@@ -235,7 +240,7 @@ namespace ClownsCRMAPI.Controllers
             {
                 // Auto-generate contractId by incrementing the last contractId in the database
                 int contractId = (_context.ContractTimeTeamInfos.Max(c => (int?)c.ContractId) ?? 0) + 1;
-
+                globalContractId = contractId;
                 // Generate time slots
                 var timeSlots = GenerateTimeSlots(
                     eventInfoModel.EventInfoPartyStartTime,

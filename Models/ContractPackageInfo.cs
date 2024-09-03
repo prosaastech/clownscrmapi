@@ -35,9 +35,9 @@ public partial class ContractPackageInfo
 
     public int? CustomerId { get; set; }
 
-    public int? BranchId { get; set; }
+    public int BranchId { get; set; }
 
-    public int? CompanyId { get; set; }
+    public int CompanyId { get; set; }
 
     public virtual ICollection<ContractPackageInfoAddon> ContractPackageInfoAddons { get; set; } = new List<ContractPackageInfoAddon>();
 

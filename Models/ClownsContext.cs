@@ -232,7 +232,6 @@ public partial class ClownsContext : DbContext
             entity.Property(e => e.ContractPackageInfoCharacterId)
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("Contract_PackageInfo_CharacterId");
-            entity.Property(e => e.CharacterId).HasColumnType("character varying");
             entity.Property(e => e.Price).HasPrecision(18, 2);
 
             entity.HasOne(d => d.PackageInfo).WithMany(p => p.ContractPackageInfoCharacters)

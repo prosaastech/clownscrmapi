@@ -27,7 +27,7 @@ namespace ClownsCRMAPI.CustomModels
 
         public decimal? Tip2 { get; set; }
 
-        public decimal? Subtract { get; set; }
+        public decimal? Substract { get; set; }
 
         public decimal? TotalBalance { get; set; }
 
@@ -35,9 +35,9 @@ namespace ClownsCRMAPI.CustomModels
 
         public int? CustomerId { get; set; }
 
-        public int? BranchId { get; set; }
+        public int BranchId { get; set; }
 
-        public int? CompanyId { get; set; }
+        public int CompanyId { get; set; }
 
         public List<AddonModel> Addons { get; set; } //= new List<Addon>();
 
@@ -61,14 +61,14 @@ namespace ClownsCRMAPI.CustomModels
     public  class AddonModel
     {
         public int AddonId { get; set; }
-        public double Price { get; set; }
+        public decimal Price { get; set; }
     }
 
     public class BounceModel
     {
         public int BounceId { get; set; }
 
-        public double Price { get; set; }
+        public decimal Price { get; set; }
     }
 
 }
