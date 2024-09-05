@@ -149,6 +149,8 @@ public partial class ClownsContext : DbContext
 
             entity.Property(e => e.BookingPaymentInfoId).UseIdentityAlwaysColumn();
             entity.Property(e => e.BillingAddress).HasMaxLength(1000);
+            entity.Property(e => e.CardNumber).HasMaxLength(100);
+            entity.Property(e => e.CardNumber2).HasMaxLength(100);
             entity.Property(e => e.Cvv).HasColumnName("CVV");
             entity.Property(e => e.Cvv2).HasColumnName("CVV2");
             entity.Property(e => e.ExpireMonthYear).HasMaxLength(10);

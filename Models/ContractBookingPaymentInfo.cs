@@ -15,15 +15,11 @@ public partial class ContractBookingPaymentInfo
 
     public int? CompanyId { get; set; }
 
-    public int? CardNumber { get; set; }
-
     public int? CardTypeId { get; set; }
 
     public string? ExpireMonthYear { get; set; }
 
     public int? Cvv { get; set; }
-
-    public int? CardNumber2 { get; set; }
 
     public int? CardTypeId2 { get; set; }
 
@@ -36,4 +32,8 @@ public partial class ContractBookingPaymentInfo
     public string? BillingAddress { get; set; }
 
     public bool? UseAddress { get; set; }
+
+    public string? CardNumber { get; set; }
+
+    public string? CardNumber2 { get; set; }
 }

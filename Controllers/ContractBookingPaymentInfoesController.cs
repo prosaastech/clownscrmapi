@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using ClownsCRMAPI.CustomModels;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -79,31 +80,42 @@ namespace ClownsCRMAPI.Controllers
         [HttpPost("SaveBookingPaymentInfo")]
         public async Task<ActionResult<int>> PostContractBookingPaymentInfo(ContractBookingPaymentInfo contractBookingPaymentInfo)
         {
+            // Get BranchId and CompanyId from the token
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
             if (contractBookingPaymentInfo.BookingPaymentInfoId > 0)
             {
-                 var existingPaymentInfo = await _context.ContractBookingPaymentInfos
-                    .FindAsync(contractBookingPaymentInfo.BookingPaymentInfoId);
+                // Check if the record exists and matches the BranchId and CompanyId
+                var existingPaymentInfo = await _context.ContractBookingPaymentInfos
+                    .Where(p => p.BookingPaymentInfoId == contractBookingPaymentInfo.BookingPaymentInfoId &&
+                                p.BranchId == BranchId &&
+                                p.CompanyId == CompanyId)
+                    .FirstOrDefaultAsync();
 
                 if (existingPaymentInfo == null)
                 {
-                    return NotFound(); // Return 404 if the record is not found
+                    return NotFound(); // Return 404 if the record is not found or does not belong to the branch/company
                 }
 
-                // Update the fields
+                // Update the fields for the existing record
                 _context.Entry(existingPaymentInfo).CurrentValues.SetValues(contractBookingPaymentInfo);
             }
             else
             {
-                // Add new record
+                // Add a new record and set BranchId and CompanyId
+                contractBookingPaymentInfo.BranchId = BranchId;
+                contractBookingPaymentInfo.CompanyId = CompanyId;
                 _context.ContractBookingPaymentInfos.Add(contractBookingPaymentInfo);
             }
 
             // Save changes to the database
             await _context.SaveChangesAsync();
 
-            // Return the saved BookingPaymentInfoId
+            // Return the saved or updated BookingPaymentInfoId
             return Ok(contractBookingPaymentInfo.BookingPaymentInfoId);
         }
+
 
 
         // DELETE: api/ContractBookingPaymentInfoes/5
