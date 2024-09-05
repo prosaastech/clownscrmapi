@@ -13,9 +13,9 @@ public partial class ContractPackageInfoBounce
 
     public decimal Price { get; set; }
 
-    public int BranchId { get; set; }
+    public int? BranchId { get; set; }
 
-    public int CompanyId { get; set; }
+    public int? CompanyId { get; set; }
 
     public virtual ContractPackageInfo PackageInfo { get; set; } = null!;
 }

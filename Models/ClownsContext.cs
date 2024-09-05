@@ -31,6 +31,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<ChildrenUnderAge> ChildrenUnderAges { get; set; }
 
+    public virtual DbSet<ContractBookingPaymentInfo> ContractBookingPaymentInfos { get; set; }
+
     public virtual DbSet<ContractEventInfo> ContractEventInfos { get; set; }
 
     public virtual DbSet<ContractPackageInfo> ContractPackageInfos { get; set; }
@@ -137,6 +139,20 @@ public partial class ClownsContext : DbContext
             entity.ToTable("ChildrenUnderAge");
 
             entity.Property(e => e.ChildrenUnderAgeId).UseIdentityAlwaysColumn();
+        });
+
+        modelBuilder.Entity<ContractBookingPaymentInfo>(entity =>
+        {
+            entity.HasKey(e => e.BookingPaymentInfoId).HasName("BookingPaymentInfo_pkey");
+
+            entity.ToTable("Contract_BookingPaymentInfo");
+
+            entity.Property(e => e.BookingPaymentInfoId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.BillingAddress).HasMaxLength(1000);
+            entity.Property(e => e.Cvv).HasColumnName("CVV");
+            entity.Property(e => e.Cvv2).HasColumnName("CVV2");
+            entity.Property(e => e.ExpireMonthYear).HasMaxLength(10);
+            entity.Property(e => e.ExpireMonthYear2).HasMaxLength(10);
         });
 
         modelBuilder.Entity<ContractEventInfo>(entity =>

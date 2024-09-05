@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using ClownsCRMAPI.CustomModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ClownsCRMAPI.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class ContractEventInfoesController : ControllerBase

@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using ClownsCRMAPI.CustomModels;
 using NuGet.Packaging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ClownsCRMAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ContractPackageInfoesController : ControllerBase
