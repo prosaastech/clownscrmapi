@@ -267,6 +267,7 @@ public partial class ClownsContext : DbContext
             entity.Property(e => e.ContractTimeTeamInfoId)
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("Contract_TimeTeamInfoId");
+            entity.Property(e => e.ContractNo).HasColumnType("character varying");
 
             entity.HasOne(d => d.Team).WithMany(p => p.ContractTimeTeamInfos)
                 .HasForeignKey(d => d.TeamId)

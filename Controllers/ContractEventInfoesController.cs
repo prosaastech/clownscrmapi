@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using ClownsCRMAPI.CustomModels;
 using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics.Metrics;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -232,6 +233,25 @@ namespace ClownsCRMAPI.Controllers
             return time.ToString("hh:mm tt");
         }
 
+
+        public static string GenerateContractNumber(int _counter)
+        {
+            // Get the current date in the format DDMMYYYY
+            string datePart = DateTime.Now.ToString("ddMMyyyy");
+
+            // Generate a unique identifier (e.g., counter or random number)
+            // You can increment the counter or use something more sophisticated, such as a database ID.
+            string uniquePart = "N" + _counter.ToString("D6"); // N followed by a 6-digit number, padded with zeroes
+
+            // Combine the date and unique identifier
+            string contractNumber = $"{datePart}{uniquePart}";
+
+            // Increment the counter for the next contract
+            _counter++;
+
+            return contractNumber;
+        }
+
         int globalContractId = 0;
         private async Task SaveContractAsync(EventInfoModel eventInfoModel)
         {
@@ -266,7 +286,8 @@ namespace ClownsCRMAPI.Controllers
                         TimeSlotId = timeSlotEntity.TimeSlotId,
                         EntryDate = DateOnly.FromDateTime(DateTime.Now),
                         BranchId = BranchId,
-                        CompanyId = CompanyId
+                        CompanyId = CompanyId,
+                        ContractNo = GenerateContractNumber(contractId)
                      };
 
                     _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo);
