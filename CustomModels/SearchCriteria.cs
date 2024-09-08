@@ -16,6 +16,9 @@
         public int? AddOns { get; set; }
         public int? Venue { get; set; }
         public int? PaymentStatus { get; set; }
+
+        public int Page { get; set; }
+        public int PageSize { get; set; }
     }
 
 }

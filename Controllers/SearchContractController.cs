@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -21,94 +22,95 @@ namespace ClownsCRMAPI.Controllers
         [HttpPost("search")]
         public async Task<IActionResult> Search([FromBody] SearchCriteria criteria)
         {
-            List<SearchResultDto> results = new List<SearchResultDto>();
+            int page = criteria.Page; // Make sure `SearchCriteria` has a `Page` property
+            int pageSize = criteria.PageSize; // Make sure `SearchCriteria` has a `PageSize` property
 
             try
             {
+                page = page == 0 ? 1 : page;
+                int branchId = TokenHelper.GetBranchId(HttpContext);
+                int companyId = TokenHelper.GetCompanyId(HttpContext);
 
-            int BranchId = TokenHelper.GetBranchId(HttpContext);
-            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+                var query = (from customer in _context.CustomerInfos
+                             join eventInfo in _context.ContractEventInfos
+                             on customer.CustomerId equals eventInfo.CustomerId into customerEvents
+                             from eventInfo in customerEvents.DefaultIfEmpty()
+                             join timeTeamInfo in _context.ContractTimeTeamInfos
+                             on new { eventInfo.CustomerId, eventInfo.ContractId, BranchId = customer.BranchId, CompanyId = customer.CompanyId }
+                             equals new { timeTeamInfo.CustomerId, timeTeamInfo.ContractId, timeTeamInfo.BranchId, timeTeamInfo.CompanyId } into eventTimes
+                                             from timeTeamInfo in eventTimes.DefaultIfEmpty()
+                             where customer.BranchId == branchId && customer.CompanyId == companyId
+                             select new
+                             {
+                                 customer.FirstName,
+                                 customer.LastName,
+                                 customer.EmailAddress,
+                                 customer.PhoneNo,
+                                 EventDate = eventInfo != null
+                                            ? (eventInfo.EventInfoEventDate.HasValue
+                                                ? (DateTime?)eventInfo.EventInfoEventDate.Value.ToDateTime(new TimeOnly(0, 0))
+                                                : (DateTime?)null)
+                                            : (DateTime?)null,
+                                 ContractNo = timeTeamInfo != null ? timeTeamInfo.ContractNo : null,
+                                 ContractId = timeTeamInfo != null ? timeTeamInfo.ContractId : null,
+                                 ContractDate = timeTeamInfo != null ? timeTeamInfo.EntryDate : null,
 
-                var query = from customer in _context.CustomerInfos
-                            join contract in _context.ContractTimeTeamInfos
-                                on customer.CustomerId equals contract.CustomerId
-                            join eventInfo in _context.ContractEventInfos
-                                on contract.ContractId equals eventInfo.ContractId into events
-                            from eventInfo in events.DefaultIfEmpty()
-                            join timeTeam in _context.ContractTimeTeamInfos
-                                on contract.ContractId equals timeTeam.ContractId into timesTeams
-                            from timeTeam in timesTeams.DefaultIfEmpty()
-                            join packageInfo in _context.ContractPackageInfos
-                                on contract.ContractId equals packageInfo.ContractId into packages
-                            from packageInfo in packages.DefaultIfEmpty()
-                            join addon in _context.ContractPackageInfoAddons
-                                on packageInfo.PackageInfoId equals addon.PackageInfoId into addons
-                            from addon in addons.DefaultIfEmpty()
-                            join bounce in _context.ContractPackageInfoBounces
-                                on packageInfo.PackageInfoId equals bounce.PackageInfoId into bounces
-                            from bounce in bounces.DefaultIfEmpty()
-                            join character in _context.ContractPackageInfoCharacters
-                                on packageInfo.PackageInfoId equals character.PackageInfoId into characters
-                            from character in characters.DefaultIfEmpty()
-                            join paymentInfo in _context.ContractBookingPaymentInfos
-                                on contract.ContractId equals paymentInfo.ContractId into payments
-                            from paymentInfo in payments.DefaultIfEmpty()
-                            where contract.BranchId == BranchId && contract.CompanyId == CompanyId
-                            select new
-                            {
-                                Customer = customer,
-                                Contract = contract,
-                                EventInfo = eventInfo,
-                                TimeTeam = timeTeam,
-                                PackageInfo = packageInfo,
-                                Addons = addons,
-                                Bounces = bounces,
-                                Characters = characters,
-                                PaymentInfo = paymentInfo
-                            };
+                             }).AsQueryable();
 
-
+                // Apply search criteria
                 if (!string.IsNullOrEmpty(criteria.FirstName))
-                query = query.Where(x => x.Customer.FirstName.Contains(criteria.FirstName));
+                    query = query.Where(x => x.FirstName.Contains(criteria.FirstName));
 
-            if (!string.IsNullOrEmpty(criteria.LastName))
-                query = query.Where(x => x.Customer.LastName.Contains(criteria.LastName));
+                if (!string.IsNullOrEmpty(criteria.LastName))
+                    query = query.Where(x => x.LastName.Contains(criteria.LastName));
 
-            if (!string.IsNullOrEmpty(criteria.CustomerEmail))
-                query = query.Where(x => x.Customer.EmailAddress.Contains(criteria.CustomerEmail));
+                if (!string.IsNullOrEmpty(criteria.CustomerEmail))
+                    query = query.Where(x => x.EmailAddress.Contains(criteria.CustomerEmail));
 
-            if (criteria.EventDate.HasValue)
-            {
-                var eventDateOnly = DateOnly.FromDateTime(criteria.EventDate.Value); // Convert to DateOnly
-                query = query.Where(x => x.EventInfo.EventInfoEventDate.HasValue &&
-                                         x.EventInfo.EventInfoEventDate.Value == eventDateOnly);
-            }
+                if (!string.IsNullOrEmpty(criteria.CustomerPhone))
+                    query = query.Where(x => x.PhoneNo.Contains(criteria.CustomerPhone));
 
-                // Add more conditions for other fields as needed
+                var test = query.ToList();
+                if (criteria.EventDate.HasValue)
+                {
+                    var eventDate = criteria.EventDate.Value.Date; // Ensure you are working with DateTime only
+                    query = query.Where(x => x.EventDate.HasValue && x.EventDate.Value.Date == eventDate); // Compare only the date part
+                }
 
-               results = await query
+                // Get the total count of items
+                var totalCount = await query.CountAsync();
+
+                // Apply pagination
+                var results = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(x => new SearchResultDto
                     {
-                        Customer = x.Customer,
-                        Contract = x.Contract,
-                        EventInfo = x.EventInfo,
-                        TimeTeam = x.TimeTeam,
-                        PackageInfo = x.PackageInfo,
-                        //Addons = x.Addons.ToList(), 
-                        //Bounces = x.Bounces.ToList(),
-                        //Characters = x.Characters.ToList(),
-                        PaymentInfo = x.PaymentInfo
-                    }).ToListAsync();
+                        FirstName = x.FirstName,
+                        LastName = x.LastName,
+                        EmailAddress = x.EmailAddress,
+                        ContractId = x.ContractId,
+                        ContractNumber = x.ContractNo,
+                        ContractDate = x.ContractDate
+                    })
+                    .ToListAsync();
 
-
+                // Return paginated results
+                return Ok(new
+                {
+                    Data = results,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
-
-                 
+                // Log exception (if you have a logging mechanism)
+                return StatusCode(500, "Internal server error");
             }
-            return Ok(results);
         }
+
 
     }
 }
