@@ -25,6 +25,8 @@ public partial class ContractTimeTeamInfo
 
     public string? ContractNo { get; set; }
 
+    public int? ContractStatusId { get; set; }
+
     public virtual Team Team { get; set; } = null!;
 
     public virtual TimeSlot TimeSlot { get; set; } = null!;

@@ -43,6 +43,8 @@ public partial class ClownsContext : DbContext
 
     public virtual DbSet<ContractPackageInfoCharacter> ContractPackageInfoCharacters { get; set; }
 
+    public virtual DbSet<ContractStatus> ContractStatuses { get; set; }
+
     public virtual DbSet<ContractTimeTeamInfo> ContractTimeTeamInfos { get; set; }
 
     public virtual DbSet<CustomerInfo> CustomerInfos { get; set; }
@@ -258,6 +260,17 @@ public partial class ClownsContext : DbContext
                 .HasConstraintName("PackageInfo");
         });
 
+        modelBuilder.Entity<ContractStatus>(entity =>
+        {
+            entity.HasKey(e => e.ContractStatusId).HasName("ContractStatus_pkey");
+
+            entity.ToTable("ContractStatus");
+
+            entity.Property(e => e.ContractStatusId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.ContractStatusColor).HasMaxLength(100);
+            entity.Property(e => e.ContractStatusName).HasMaxLength(200);
+        });
+
         modelBuilder.Entity<ContractTimeTeamInfo>(entity =>
         {
             entity.HasKey(e => e.ContractTimeTeamInfoId).HasName("Contract_TimeTeamInfo_pkey");
@@ -267,7 +280,7 @@ public partial class ClownsContext : DbContext
             entity.Property(e => e.ContractTimeTeamInfoId)
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("Contract_TimeTeamInfoId");
-            entity.Property(e => e.ContractNo).HasColumnType("character varying");
+            entity.Property(e => e.ContractNo).HasMaxLength(200);
 
             entity.HasOne(d => d.Team).WithMany(p => p.ContractTimeTeamInfos)
                 .HasForeignKey(d => d.TeamId)

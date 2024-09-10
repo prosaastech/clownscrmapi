@@ -13,7 +13,24 @@ namespace ClownsCRMAPI.CustomModels
         public int? ContractId { get; set; }
 
         public DateOnly? ContractDate { get; set; }
+        public DateTime? EventDate { get; set; }
 
+        public int? StateId { get; set; }
+        public string? StateName { get; set; }
+
+        public string? City { get; set; }
+        public string? PackageName { get; set; }
+        public string? approval { get; set; }
+        public string? confirmation { get; set; }
+        public string? primaryHonoree { get; set; }
+
+        public string? characters { get; set; }
+
+        public string? bounces { get; set; }
+
+        public string? addOns { get; set; }
+
+ 
         //public CustomerInfo Customer { get; set; }
         //public ContractTimeTeamInfo Contract { get; set; }
         //public ContractEventInfo EventInfo { get; set; }
