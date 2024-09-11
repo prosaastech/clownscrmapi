@@ -216,20 +216,21 @@ namespace ClownsCRMAPI.Controllers
                 query = query.Where(x => x.Approval.Equals(criteria.Approval));
                 query = query.Where(x => x.Confirmation.Equals(criteria.Confirmation));
 
+                var test1234 = query.ToList();
 
-                if (criteria.Characters.HasValue)
+                if (criteria.Characters.HasValue && criteria.Characters !=0)
                 {
-                    query = query.Where(x => x.CharacterId.Equals(criteria.Characters));
+                    query = query.Where(x => x.CharacterId.Contains(criteria.Characters.ToString()));
                 }
 
-                if (criteria.Bounces.HasValue)
+                if (criteria.Bounces.HasValue && criteria.Bounces !=0)
                 {
-                    query = query.Where(x => x.BounceId.Equals(criteria.Bounces));
+                    query = query.Where(x => x.BounceId.Contains(criteria.Bounces.ToString()));
                 }
 
-                if (criteria.AddOns.HasValue)
+                if (criteria.AddOns.HasValue && criteria.AddOns !=0)
                 {
-                    query = query.Where(x => x.AddonId.Equals(criteria.AddOns));
+                    query = query.Where(x => x.AddonId.Contains(criteria.AddOns.ToString()));
                 }
                 var test = query.ToList();
                 if (criteria.EventDate.HasValue && criteria.EventDate.ToString() != "1/01/1009 12:00:00 AM")
@@ -261,7 +262,10 @@ namespace ClownsCRMAPI.Controllers
                         primaryHonoree = x.HonoreeName,
                         characters = x.Characters,
                         bounces = x.Bounces,
-                        addOns = x.Addons
+                        addOns = x.Addons,
+                        approval = x.Approval,
+                        confirmation = x.Confirmation,
+                        ContractStatusId = x.ContractStatusId
 
                     })
                     .ToListAsync();

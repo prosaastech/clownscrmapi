@@ -20,8 +20,8 @@ namespace ClownsCRMAPI.CustomModels
 
         public string? City { get; set; }
         public string? PackageName { get; set; }
-        public string? approval { get; set; }
-        public string? confirmation { get; set; }
+        public bool? approval { get; set; }
+        public bool? confirmation { get; set; }
         public string? primaryHonoree { get; set; }
 
         public string? characters { get; set; }
@@ -30,7 +30,8 @@ namespace ClownsCRMAPI.CustomModels
 
         public string? addOns { get; set; }
 
- 
+        public int? ContractStatusId { get; set; }
+
         //public CustomerInfo Customer { get; set; }
         //public ContractTimeTeamInfo Contract { get; set; }
         //public ContractEventInfo EventInfo { get; set; }
