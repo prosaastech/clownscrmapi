@@ -119,8 +119,9 @@ namespace ClownsCRMAPI.Controllers
                                  contractPackage.CategoryId,
                                  eventInfo.EventInfoVenue,
                                  contractBookingPayment.PaymentStatusId,
-                                 timeTeamInfo.ContractStatusId
-
+                                 timeTeamInfo.ContractStatusId,
+                                 customer.CustomerId
+ 
                              } into grouped
 
                              // Select the fields and concatenate character, bounce, and addon names
@@ -169,7 +170,8 @@ namespace ClownsCRMAPI.Controllers
                                  ContractStatusId = grouped.Key.ContractStatusId,
                                  Confirmation = grouped.Key.ContractStatusId == 1? true : false,
                                  Approval = grouped.Key.ContractStatusId == 2? true : false,
-                                 
+                                 CustomerId = grouped.Key.CustomerId
+                                  
                              }).AsQueryable();
 
 
@@ -265,7 +267,8 @@ namespace ClownsCRMAPI.Controllers
                         addOns = x.Addons,
                         approval = x.Approval,
                         confirmation = x.Confirmation,
-                        ContractStatusId = x.ContractStatusId
+                        ContractStatusId = x.ContractStatusId,
+                        CustomerId = x.CustomerId
 
                     })
                     .ToListAsync();
