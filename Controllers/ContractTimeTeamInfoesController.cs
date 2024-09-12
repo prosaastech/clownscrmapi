@@ -12,6 +12,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.CodeAnalysis.Operations;
 using System.ComponentModel.Design;
+using System.Text.RegularExpressions;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -103,9 +104,7 @@ namespace ClownsCRMAPI.Controllers
                                  // Where clause to filter by BranchId and CompanyId
                              where customer.BranchId == branchId && customer.CompanyId == companyId
 
-                             // Group results to aggregate character, bounce, and addon names
-                             group new { customer, eventInfo, timeTeamInfo, state, contractPackage, partyPackage, character, bounce, addon, contractBookingPayment }
-                             by new
+                               select new
                              {
                                  customer.FirstName,
                                  customer.LastName,
@@ -114,77 +113,34 @@ namespace ClownsCRMAPI.Controllers
                                  customer.PhoneNo,
                                  customer.HonoreeName,
                                  state.StateId,
-                                 state.StateName,
-                                 eventInfo.EventInfoEventDate,
+                                 EventDate = eventInfo.EventInfoEventDate.HasValue
+                                            ? (DateTime?)eventInfo.EventInfoEventDate.Value.ToDateTime(new TimeOnly(0, 0))
+                                            : (DateTime?)null,
                                  timeTeamInfo.ContractNo,
                                  timeTeamInfo.ContractId,
-                                 timeTeamInfo.EntryDate,
+                                 ContractDate = timeTeamInfo.EntryDate,
                                  contractPackage.PartyPackageId,
                                  partyPackage.PartyPackageName,
                                  contractPackage.CategoryId,
                                  eventInfo.EventInfoVenue,
                                  contractBookingPayment.PaymentStatusId,
                                  timeTeamInfo.ContractStatusId,
-                                 customer.CustomerId
-
-                             } into grouped
-
-                             // Select the fields and concatenate character, bounce, and addon names
-                             select new
-                             {
-                                 FirstName = grouped.Key.FirstName,
-                                 LastName = grouped.Key.LastName,
-                                 EmailAddress = grouped.Key.EmailAddress,
-                                 City = grouped.Key.City,
-                                 PhoneNo = grouped.Key.PhoneNo,
-                                 HonoreeName = grouped.Key.HonoreeName,
-
-                                 // State information
-                                 StateId = grouped.Key.StateId,
-                                 StateName = grouped.Key.StateName,
-
-                                 // Event information
-                                 EventDate = grouped.Key.EventInfoEventDate.HasValue
-                                            ? (DateTime?)grouped.Key.EventInfoEventDate.Value.ToDateTime(new TimeOnly(0, 0))
-                                            : (DateTime?)null,
-
-                                 // Contract information
-                                 ContractNo = grouped.Key.ContractNo,
-                                 ContractId = grouped.Key.ContractId,
-                                 ContractDate = grouped.Key.EntryDate,
-
-                                 // Package information
-                                 PackageId = grouped.Key.PartyPackageId,
-                                 PackageName = grouped.Key.PartyPackageName,
-
-                                 // Concatenated character names
-                                 Characters = string.Join(", ", grouped.Select(g => g.character != null ? g.character.CharacterName : "").Where(name => !string.IsNullOrEmpty(name)).Distinct()),
-                                 CharacterId = string.Join(", ", grouped.Select(g => g.character != null ? g.character.CharacterId.ToString() : "").Distinct().Where(id => !string.IsNullOrEmpty(id))),
-
-                                 // Concatenated bounce names
-                                 Bounces = string.Join(", ", grouped.Select(g => g.bounce != null ? g.bounce.BounceName : "").Where(name => !string.IsNullOrEmpty(name)).Distinct()),
-                                 BounceId = string.Join(", ", grouped.Select(g => g.bounce != null ? g.bounce.BounceId.ToString() : "").Where(id => !string.IsNullOrEmpty(id)).Distinct()),
-
-                                 // Concatenated addon names
-                                 Addons = string.Join(", ", grouped.Select(g => g.addon != null ? g.addon.AddonName : "").Where(name => !string.IsNullOrEmpty(name)).Distinct()),
-                                 AddonId = string.Join(", ", grouped.Select(g => g.addon != null ? g.addon.AddonId.ToString() : "").Where(id => !string.IsNullOrEmpty(id)).Distinct()),
-
-                                 CategoryId = grouped.Key.CategoryId,
-                                 EventInfoVenue = grouped.Key.EventInfoVenue,
-                                 PaymentStatusId = grouped.Key.PaymentStatusId,
-                                 ContractStatusId = grouped.Key.ContractStatusId,
-                                 Confirmation = grouped.Key.ContractStatusId == 1 ? true : false,
-                                 Approval = grouped.Key.ContractStatusId == 2 ? true : false,
-                                 CustomerId = grouped.Key.CustomerId
+                                 customer.CustomerId,
+                                 eventInfo.EventInfoPartyStartTime,
+                                 eventInfo.EventInfoPartyEndTime,
+                                 customer.AddressTypeId
 
                              }).AsQueryable();
 
 
-               
-                //if (!string.IsNullOrEmpty(criteria.contractNumber))
-                //    query = query.Where(x => x.ContractNo.Contains(criteria.contractNumber));
- 
-               
+
+                if (CustomerId !=0 && CustomerId !=0)
+                    query = query.Where(x => x.CustomerId.Equals(CustomerId));
+
+                if (ContractId != 0 && ContractId != 0)
+                    query = query.Where(x => x.ContractId.Equals(ContractId));
+
+
                 var totalCount = await query.CountAsync();
 
                 // Apply pagination
@@ -199,27 +155,24 @@ namespace ClownsCRMAPI.Controllers
                         ContractDate = x.ContractDate,
                         EventDate = x.EventDate,
                         StateId = x.StateId,
-                        StateName = x.StateName,
+                        //StateName = x.StateName,
                         City = x.City,
-                        PackageName = x.PackageName,
+                        //PackageName = x.PackageName,
                         primaryHonoree = x.HonoreeName,
-                        characters = x.Characters,
-                        bounces = x.Bounces,
-                        addOns = x.Addons,
-                        approval = x.Approval,
-                        confirmation = x.Confirmation,
+                        //characters = x.Characters,
+                        //bounces = x.Bounces,
+                        //addOns = x.Addons,
+                        //approval = x.Approval,
+                        //confirmation = x.Confirmation,
                         ContractStatusId = x.ContractStatusId,
-                        CustomerId = x.CustomerId
+                        CustomerId = x.CustomerId,
+                        AddressTypeId = x.AddressTypeId
 
                     })
-                    .ToListAsync();
+                    .FirstOrDefaultAsync();
 
                 // Return paginated results
-                return Ok(new
-                {
-                    Data = results,
-                    TotalCount = totalCount 
-                });
+                return Ok(results);
             }
             catch (Exception ex)
             {

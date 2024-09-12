@@ -85,6 +85,8 @@ namespace ClownsCRMAPI.Controllers
             if (customerInfo.CustomerId == 0)
             {
                 // Add new customer
+                customerInfo.BranchId = BranchId;
+                customerInfo.CompanyId = CompanyId;
                 _context.CustomerInfos.Add(customerInfo);
                 await _context.SaveChangesAsync();
 

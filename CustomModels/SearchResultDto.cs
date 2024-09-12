@@ -12,6 +12,7 @@ namespace ClownsCRMAPI.CustomModels
         public string? ContractNumber { get; set; }
         public int? ContractId { get; set; }
         public int? CustomerId { get; set; }
+        public int? AddressTypeId { get; set; }
 
         public DateOnly? ContractDate { get; set; }
         public DateTime? EventDate { get; set; }
