@@ -13,6 +13,8 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis.Operations;
 using System.ComponentModel.Design;
 using System.Text.RegularExpressions;
+using NuGet.Packaging.Signing;
+using System.Reflection;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -104,7 +106,7 @@ namespace ClownsCRMAPI.Controllers
                                  // Where clause to filter by BranchId and CompanyId
                              where customer.BranchId == branchId && customer.CompanyId == companyId
 
-                               select new
+                             select new
                              {
                                  customer.FirstName,
                                  customer.LastName,
@@ -112,24 +114,76 @@ namespace ClownsCRMAPI.Controllers
                                  customer.City,
                                  customer.PhoneNo,
                                  customer.HonoreeName,
-                                 state.StateId,
+                                 customer.AddressTypeId,
+                                 customer.RelationshipId,
+                                 customer.OtherRelationshipId,
+                                 customer.AlternatePhone,
+                                 customer.Address,
+                                 customer.Zip,
+                                 customer.StateId,
+                                 customer.ChildrenId,
+                                 customer.ChildrenUnderAgeId,
+                                 customer.HonoreeAge,
+                                 customer.HeardResourceId,
+                                 customer.SpecifyOther,
+                                 customer.Comments,
                                  EventDate = eventInfo.EventInfoEventDate.HasValue
-                                            ? (DateTime?)eventInfo.EventInfoEventDate.Value.ToDateTime(new TimeOnly(0, 0))
-                                            : (DateTime?)null,
+                                          ? (DateTime?)eventInfo.EventInfoEventDate.Value.ToDateTime(new TimeOnly(0, 0))
+                                          : (DateTime?)null,
+                                 eventInfo.ContractEventInfoId,
+                                 eventInfo.EventInfoEventType,
+                                 eventInfo.EventInfoNumberOfChildren,
+                                 EventInfoEventDate = eventInfo.EventInfoEventDate,
+                                 eventInfo.EventInfoPartyStartTime,
+                                 eventInfo.EventInfoPartyEndTime,
+                                 eventInfo.EventInfoTeamAssigned,
+                                 eventInfo.EventInfoStartClownHour,
+                                 eventInfo.EventInfoEndClownHour,
+                                 eventInfo.EventInfoEventAddress,
+                                 eventInfo.EventInfoEventCity,
+                                 eventInfo.EventInfoEventZip,
+                                 eventInfo.EventInfoEventState,
+                                 eventInfo.EventInfoVenue,
+                                 eventInfo.EventInfoVenueDescription,
                                  timeTeamInfo.ContractNo,
                                  timeTeamInfo.ContractId,
                                  ContractDate = timeTeamInfo.EntryDate,
-                                 contractPackage.PartyPackageId,
                                  partyPackage.PartyPackageName,
-                                 contractPackage.CategoryId,
-                                 eventInfo.EventInfoVenue,
                                  contractBookingPayment.PaymentStatusId,
                                  timeTeamInfo.ContractStatusId,
                                  customer.CustomerId,
-                                 eventInfo.EventInfoPartyStartTime,
-                                 eventInfo.EventInfoPartyEndTime,
-                                 customer.AddressTypeId
+                                 contractPackage.PartyPackageId,
+                                 contractPackage.CategoryId,
+                                 contractPackage.PackageInfoId,
+                                 contractPackage.Price,
+                                 contractPackage.Tax,
+                                 contractPackage.Tip,
+                                 contractPackage.Description,
+                                 //Characters = packageCharacters.Select(pc => new Character
+                                 //{
+                                 //   CharacterId =  pc.CharacterId,
+                                 //   Price = character.Price // Include price for character
+                                 //}).Distinct().ToList(),
 
+                                 //Addons = packageAddons.Select(pa => new
+                                 //{
+                                 //    pa.AddonId,
+                                 //    addon.Price // Include price for addon
+                                 //}).Distinct().ToList(),
+
+                                 //Bounces = packageBounces.Select(pb => new
+                                 //{
+                                 //    pb.BounceId,
+                                 //    bounce.Price // Include price for bounce
+                                 //}).Distinct().ToList(),
+
+                                 contractPackage.ParkingFees,
+                                 contractPackage.TollFees,
+                                 contractPackage.Deposit,
+                                 contractPackage.Tip2,
+                                 contractPackage.Subtract,
+                                 contractPackage.TotalBalance
+ 
                              }).AsQueryable();
 
 
@@ -144,29 +198,67 @@ namespace ClownsCRMAPI.Controllers
                 var totalCount = await query.CountAsync();
 
                 // Apply pagination
-                var results = await query 
-                    .Select(x => new SearchResultDto
+                var results = await query
+                    .Select(x => new SearchResultContractDto
                     {
+
+                        CustomerId = x.CustomerId,
+                        AddressTypeId = x.AddressTypeId,
                         FirstName = x.FirstName,
                         LastName = x.LastName,
-                        EmailAddress = x.EmailAddress,
+                        EmailAddress = x.EmailAddress, 
+                        City =  x.City,
+                        PhoneNo = x.PhoneNo,
+                        HonoreeName = x.HonoreeName,
+                        RelationshipId = x.RelationshipId,
+                        OtherRelationshipId = x.OtherRelationshipId,
+                        AlternatePhone = x.AlternatePhone,
+                        Address = x.Address,
+                        Zip = x.Zip,
+                        StateId = x.StateId,
+                        ChildrenId = x.ChildrenId,
+                        ChildrenUnderAgeId = x.ChildrenUnderAgeId,
+                        HonoreeAge = x.HonoreeAge,
+                        HeardResourceId = x.HeardResourceId,
+                        SpecifyOther = x.SpecifyOther,
+                        Comments = x.Comments, 
                         ContractId = x.ContractId,
                         ContractNumber = x.ContractNo,
                         ContractDate = x.ContractDate,
                         EventDate = x.EventDate,
-                        StateId = x.StateId,
-                        //StateName = x.StateName,
-                        City = x.City,
-                        //PackageName = x.PackageName,
-                        primaryHonoree = x.HonoreeName,
-                        //characters = x.Characters,
-                        //bounces = x.Bounces,
-                        //addOns = x.Addons,
-                        //approval = x.Approval,
-                        //confirmation = x.Confirmation,
                         ContractStatusId = x.ContractStatusId,
-                        CustomerId = x.CustomerId,
-                        AddressTypeId = x.AddressTypeId
+                        ContractEventInfoId = x.ContractEventInfoId,
+                        EventInfoEventType = x.EventInfoEventType,
+                        EventInfoNumberOfChildren =x.EventInfoNumberOfChildren,
+                        EventInfoEventDate =  x.EventInfoEventDate,
+                        EventInfoPartyStartTime = x.EventInfoPartyStartTime,
+                        EventInfoPartyEndTime = x.EventInfoPartyEndTime,
+                        EventInfoTeamAssigned = x.EventInfoTeamAssigned,
+                        EventInfoStartClownHour = x.EventInfoStartClownHour, 
+                        EventInfoEndClownHour = x.EventInfoEndClownHour,
+                        EventInfoEventAddress = x.EventInfoEventAddress,
+                        EventInfoEventCity = x.EventInfoEventCity,
+                        EventInfoEventZip = x.EventInfoEventZip,
+                        EventInfoEventState = x.EventInfoEventState,
+                        EventInfoVenue = x.EventInfoVenue,
+                        EventInfoVenueDescription =x.EventInfoVenueDescription,
+                        PartyPackageId = x.PartyPackageId,
+                        CategoryId = x.CategoryId,
+                        PackageInfoId = x.PackageInfoId,
+                        Price = x.Price,
+                        Tax = x.Tax,
+                        Tip = x.Tip,
+                        Description = x.Description,
+                        Characters = new List<Character>(),
+                        Addons = new  List<AddonModel>(),
+                        Bounces = new List<BounceModel>(),
+                        ParkingFees = x.ParkingFees,
+                        TollFees = x.TollFees,
+                        Deposit = x.Deposit,
+                        Tip2 = x.Tip2,
+                        Subtract = x.Subtract,
+                        TotalBalance = x.TotalBalance
+
 
                     })
                     .FirstOrDefaultAsync();
