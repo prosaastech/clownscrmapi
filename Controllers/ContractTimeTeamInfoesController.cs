@@ -159,31 +159,34 @@ namespace ClownsCRMAPI.Controllers
                                  contractPackage.Tax,
                                  contractPackage.Tip,
                                  contractPackage.Description,
-                                 //Characters = packageCharacters.Select(pc => new Character
-                                 //{
-                                 //   CharacterId =  pc.CharacterId,
-                                 //   Price = character.Price // Include price for character
-                                 //}).Distinct().ToList(),
-
-                                 //Addons = packageAddons.Select(pa => new
-                                 //{
-                                 //    pa.AddonId,
-                                 //    addon.Price // Include price for addon
-                                 //}).Distinct().ToList(),
-
-                                 //Bounces = packageBounces.Select(pb => new
-                                 //{
-                                 //    pb.BounceId,
-                                 //    bounce.Price // Include price for bounce
-                                 //}).Distinct().ToList(),
-
+                                 Characters = (from a in _context.ContractPackageInfoCharacters
+                                               where a.PackageInfoId == contractPackage.PackageInfoId
+                                               select a).ToList(),
+                                 Addons = (from a in _context.ContractPackageInfoAddons
+                                               where a.PackageInfoId == contractPackage.PackageInfoId
+                                               select a).ToList(),
+                                 Bounces = (from a in _context.ContractPackageInfoBounces
+                                               where a.PackageInfoId == contractPackage.PackageInfoId
+                                               select a).ToList(),
                                  contractPackage.ParkingFees,
                                  contractPackage.TollFees,
                                  contractPackage.Deposit,
                                  contractPackage.Tip2,
                                  contractPackage.Subtract,
-                                 contractPackage.TotalBalance
- 
+                                 contractPackage.TotalBalance,
+                                 BookingPaymentInfoId  = contractBookingPayment.BookingPaymentInfoId == null? 0 : contractBookingPayment.BookingPaymentInfoId,
+                                 CardNumber = contractBookingPayment.CardNumber == null? "" : contractBookingPayment.CardNumber,
+                                 CardTypeId= contractBookingPayment.CardTypeId == null? 0 : contractBookingPayment.CardTypeId,
+                                 ExpireMonthYear = contractBookingPayment.ExpireMonthYear == null? "" : contractBookingPayment.ExpireMonthYear,
+                                 Cvv = contractBookingPayment.Cvv == null? 0 : contractBookingPayment.Cvv,
+                                 CardNumber2 = contractBookingPayment.CardNumber2 == null? "" : contractBookingPayment.CardNumber2,
+                                 CardTypeId2 = contractBookingPayment.CardTypeId2 == null? 0  : contractBookingPayment.CardTypeId2,
+                                 ExpireMonthYear2 = contractBookingPayment.ExpireMonthYear2 == null? "" : contractBookingPayment.ExpireMonthYear2,
+                                 Cvv2 = contractBookingPayment.Cvv2 == null? 0 : contractBookingPayment.Cvv2,
+                                 PaymentStatus = contractBookingPayment.PaymentStatusId == null? 0 : contractBookingPayment.PaymentStatusId,
+                                 BillingAddress = contractBookingPayment.BillingAddress == null? "" : contractBookingPayment.BillingAddress,
+                                 UseAddress = contractBookingPayment.UseAddress == null? false : contractBookingPayment.UseAddress
+
                              }).AsQueryable();
 
 
@@ -195,10 +198,10 @@ namespace ClownsCRMAPI.Controllers
                     query = query.Where(x => x.ContractId.Equals(ContractId));
 
 
-                var totalCount = await query.CountAsync();
 
-                // Apply pagination
+                var test = query.ToList();
                 var results = await query
+
                     .Select(x => new SearchResultContractDto
                     {
 
@@ -249,17 +252,28 @@ namespace ClownsCRMAPI.Controllers
                         Tax = x.Tax,
                         Tip = x.Tip,
                         Description = x.Description,
-                        Characters = new List<Character>(),
-                        Addons = new  List<AddonModel>(),
-                        Bounces = new List<BounceModel>(),
+                        Characters = x.Characters, 
+                        Addons =  x.Addons, 
+                        Bounces = x.Bounces, 
                         ParkingFees = x.ParkingFees,
                         TollFees = x.TollFees,
                         Deposit = x.Deposit,
                         Tip2 = x.Tip2,
                         Subtract = x.Subtract,
-                        TotalBalance = x.TotalBalance
+                        TotalBalance = x.TotalBalance,
+                        bookingPaymentInfoId = x.BookingPaymentInfoId,
 
-
+                        cardNumber1 = x.CardNumber,
+                        cardType1 = x.CardTypeId,
+                        expirationDate1 = x.ExpireMonthYear,
+                        cvv1 = x.Cvv,
+                        cardNumber2 = x.CardNumber2,
+                        cardType2 = x.CardTypeId2,
+                        expirationDate2 = x.ExpireMonthYear2,
+                        cvv2 = x.Cvv2,
+                        paymentStatus = x.PaymentStatus,
+                        billingAddress = x.BillingAddress,
+                        useAddress = x.UseAddress
                     })
                     .FirstOrDefaultAsync();
 

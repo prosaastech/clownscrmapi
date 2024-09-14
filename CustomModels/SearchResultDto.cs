@@ -153,15 +153,29 @@ namespace ClownsCRMAPI.CustomModels
         public decimal? Tax { get; set; }
         public decimal? Tip { get; set; }
         public string? Description { get; set; }
-        public List<Character> Characters { get; set; }
-        public List<AddonModel>? Addons { get; set; }
-        public List<BounceModel>? Bounces { get; set; }
+        public List<ContractPackageInfoCharacter> Characters { get; set; }
+        public List<ContractPackageInfoAddon> Addons { get; set; }
+        public List<ContractPackageInfoBounce> Bounces { get; set; }
         public decimal? ParkingFees { get; set; }
         public decimal? TollFees { get; set; }
         public decimal? Deposit { get; set; }
         public decimal? Tip2 { get; set; }
         public decimal? Subtract { get; set; }
         public decimal? TotalBalance { get; set; }
-         
+
+
+        public int? bookingPaymentInfoId { get; set; }
+        public string? cardNumber1 { get; set; }
+        public int? cardType1 { get; set; }
+        public string? expirationDate1 { get; set; }
+        public int? cvv1 { get; set; } 
+
+        public string? cardNumber2 { get; set; }
+        public int? cardType2 { get; set; }
+        public string? expirationDate2 { get; set; }
+        public int? cvv2 { get; set; } 
+        public int? paymentStatus { get; set; }
+        public bool? useAddress { get; set; }
+        public string? billingAddress { get; set; } 
     }
 }
