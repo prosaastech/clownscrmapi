@@ -97,6 +97,8 @@ namespace ClownsCRMAPI.Controllers
                 {
                     return NotFound(); // Return 404 if the record is not found or does not belong to the branch/company
                 }
+                contractBookingPaymentInfo.BranchId = BranchId;
+                contractBookingPaymentInfo.CompanyId = CompanyId;
 
                 // Update the fields for the existing record
                 _context.Entry(existingPaymentInfo).CurrentValues.SetValues(contractBookingPaymentInfo);
