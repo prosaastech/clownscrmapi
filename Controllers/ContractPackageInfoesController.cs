@@ -164,6 +164,7 @@ namespace ClownsCRMAPI.Controllers
                         CompanyId = existingPackageInfo.CompanyId
                     })
                 );
+                await _context.SaveChangesAsync();
 
                 packageInfoId = existingPackageInfo.PackageInfoId;
             }
