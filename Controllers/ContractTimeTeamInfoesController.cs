@@ -339,7 +339,9 @@ namespace ClownsCRMAPI.Controllers
                     TeamId = ctti.Team.TeamId,
                     TeamNo = ctti.Team.TeamNo,
                     TimeSlotId = ctti.TimeSlot.TimeSlotId,
-                    Time = ctti.TimeSlot.Time
+                    Time = ctti.TimeSlot.Time,
+                    ctti.ContractId,
+                    ctti.CustomerId
                 }).ToList(),
                 teams,
                 timeSlots
