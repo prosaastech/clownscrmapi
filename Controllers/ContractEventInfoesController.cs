@@ -127,6 +127,17 @@ namespace ClownsCRMAPI.Controllers
 
             ContractEventInfo contractEventInfo;
 
+
+            model.EventInfoPartyStartTime = ConvertTo12HourFormat(model.EventInfoPartyStartTime);
+            model.EventInfoPartyEndTime = ConvertTo12HourFormat(model.EventInfoPartyEndTime);
+            if (!string.IsNullOrEmpty(model.EventInfoStartClownHour))
+            {
+                model.EventInfoStartClownHour = ConvertTo12HourFormat(model.EventInfoStartClownHour);
+            }
+            if (!string.IsNullOrEmpty(model.EventInfoEndClownHour))
+            {
+                model.EventInfoEndClownHour = ConvertTo12HourFormat(model.EventInfoEndClownHour);
+            }
             if (model.ContractEventInfoId == 0)
             {
                 // Create a new ContractEventInfo record
@@ -251,7 +262,27 @@ namespace ClownsCRMAPI.Controllers
 
             return contractNumber;
         }
+        public static string ConvertTo12HourFormat(string time)
+        {
+            // Check if the input time already contains "AM" or "PM"
+            if (time.Contains("AM", StringComparison.OrdinalIgnoreCase) || time.Contains("PM", StringComparison.OrdinalIgnoreCase))
+            {
+                return time; // Return the same time if it already contains AM/PM
+            }
 
+            // Parse the time string to a DateTime object
+            DateTime parsedTime;
+            if (DateTime.TryParse(time, out parsedTime))
+            {
+                // Convert to 12-hour format with AM/PM
+                return parsedTime.ToString("h:mm:s tt");
+            }
+            else
+            {
+                // Return an error message if parsing fails
+                return "Invalid time format";
+            }
+        }
         int globalContractId = 0;
         private async Task SaveContractAsync(EventInfoModel eventInfoModel)
         {
@@ -264,6 +295,8 @@ namespace ClownsCRMAPI.Controllers
                 int contractId = (_context.ContractTimeTeamInfos.Max(c => (int?)c.ContractId) ?? 0) + 1;
                 globalContractId = contractId;
                 // Generate time slots
+
+
                 var timeSlots = GenerateTimeSlots(
                     eventInfoModel.EventInfoPartyStartTime,
                     eventInfoModel.EventInfoPartyEndTime
