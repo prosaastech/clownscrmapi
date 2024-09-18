@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ClownsCRMAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using ClownsCRMAPI.CustomModels;
+using static ClownsCRMAPI.CustomModels.Extensions;
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -126,6 +127,27 @@ namespace ClownsCRMAPI.Controllers
 
                     // Save changes to the database
                     await _context.SaveChangesAsync();
+
+                    if (contractBookingPaymentInfoModel.ContractStatusId == 0)
+                    {
+                        contractBookingPaymentInfoModel.ContractStatusId = (int)enumContractStatus.Quoted;
+                        var PkgInfo = _context.ContractPackageInfos.Where(o => o.ContractId == contractBookingPaymentInfo.ContractId && o.CustomerId == contractBookingPaymentInfo.CustomerId).FirstOrDefault();
+                        if (PkgInfo != null)
+                        {
+                            if (PkgInfo.Deposit !=null && PkgInfo.Deposit != 0)
+                            {
+                                contractBookingPaymentInfoModel.ContractStatusId = (int)enumContractStatus.Booked;
+                            }
+                        }
+                    }
+
+
+                    var contract = _context.ContractTimeTeamInfos.Where(o => o.ContractId == contractBookingPaymentInfo.ContractId && o.CustomerId == contractBookingPaymentInfo.CustomerId).ToList();
+                    foreach (var item in contract)
+                    {
+                        item.ContractStatusId = contractBookingPaymentInfoModel.ContractStatusId;
+                    }
+                    await _context.SaveChangesAsync(); 
 
                     // Commit the transaction
                     await transaction.CommitAsync();

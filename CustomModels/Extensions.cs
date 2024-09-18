@@ -2,6 +2,15 @@
 {
     public static class Extensions
     {
+        public enum enumContractStatus
+        {
+            BookedApprovedConfirmation = 1,
+            BookedApproved = 2,
+            Booked = 3,
+            Quoted = 4,
+            Cancelled = 5
+        }
+
         // For nullable bool
         public static bool GetValueOrDefault(this bool? value, bool defaultValue = false)
         {
