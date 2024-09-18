@@ -9,6 +9,7 @@ using ClownsCRMAPI.Models;
 using ClownsCRMAPI.CustomModels;
 using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics.Metrics;
+using Microsoft.EntityFrameworkCore.Storage; // For transaction
 
 namespace ClownsCRMAPI.Controllers
 {
@@ -138,73 +139,141 @@ namespace ClownsCRMAPI.Controllers
             {
                 model.EventInfoEndClownHour = ConvertTo12HourFormat(model.EventInfoEndClownHour);
             }
-            if (model.ContractEventInfoId == 0)
-            {
-                // Create a new ContractEventInfo record
-                contractEventInfo = new ContractEventInfo();
-             }
-            else
-            {
-                // Update an existing ContractEventInfo record
-                contractEventInfo = await _context.ContractEventInfos
-                    .FindAsync(model.ContractEventInfoId);
 
-                if (contractEventInfo == null)
+            using (IDbContextTransaction transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
                 {
-                    return NotFound(); // Return 404 if the record is not found
+                    if (model.ContractEventInfoId == 0)
+                    {
+                        // Create a new ContractEventInfo record
+                        contractEventInfo = new ContractEventInfo();
+                    }
+                    else
+                    {
+                        // Update an existing ContractEventInfo record
+                        contractEventInfo = await _context.ContractEventInfos
+                            .FindAsync(model.ContractEventInfoId);
+
+                        if (contractEventInfo == null)
+                        {
+                            return NotFound(); // Return 404 if the record is not found
+                        }
+                    }
+
+                    // Map the model data to the entity (common for both create and update)
+                    contractEventInfo.EventInfoEventType = model.EventInfoEventType;
+                    contractEventInfo.EventInfoNumberOfChildren = model.EventInfoNumberOfChildren;
+                    contractEventInfo.EventInfoEventDate = model.EventInfoEventDate.HasValue
+                        ? DateOnly.FromDateTime(model.EventInfoEventDate.Value)
+                        : null;
+                    contractEventInfo.EventInfoPartyStartTime = !string.IsNullOrEmpty(model.EventInfoPartyStartTime)
+                        ? TimeOnly.Parse(model.EventInfoPartyStartTime)
+                        : null;
+                    contractEventInfo.EventInfoPartyEndTime = !string.IsNullOrEmpty(model.EventInfoPartyEndTime)
+                        ? TimeOnly.Parse(model.EventInfoPartyEndTime)
+                        : null;
+                    contractEventInfo.EventInfoTeamAssigned = model.EventInfoTeamAssigned;
+                    contractEventInfo.EventInfoStartClownHour = !string.IsNullOrEmpty(model.EventInfoStartClownHour)
+                        ? TimeOnly.Parse(model.EventInfoStartClownHour)
+                        : null;
+                    contractEventInfo.EventInfoEndClownHour = !string.IsNullOrEmpty(model.EventInfoEndClownHour)
+                        ? TimeOnly.Parse(model.EventInfoEndClownHour)
+                        : null;
+                    contractEventInfo.EventInfoEventAddress = model.EventInfoEventAddress;
+                    contractEventInfo.EventInfoEventCity = model.EventInfoEventCity;
+                    contractEventInfo.EventInfoEventZip = model.EventInfoEventZip;
+                    contractEventInfo.EventInfoEventState = model.EventInfoEventState;
+                    contractEventInfo.EventInfoVenue = model.EventInfoVenue;
+                    contractEventInfo.EventInfoVenueDescription = model.EventInfoVenueDescription;
+                    contractEventInfo.ContractId = model.ContractId;
+                    contractEventInfo.CustomerId = model.CustomerId;
+                    contractEventInfo.BranchId = BranchId;
+                    contractEventInfo.CompanyId = CompanyId;
+
+                    bool IsNew = false;
+                    if (model.ContractEventInfoId == 0)
+                    {
+                        _context.ContractEventInfos.Add(contractEventInfo);
+                        IsNew = true;
+                    }
+                    // Save changes to the database
+                    await _context.SaveChangesAsync();
+
+                    if (IsNew)
+                    {
+                        await SaveContractAsync(model);
+                        contractEventInfo.ContractId = globalContractId;
+                        _context.ContractEventInfos.Update(contractEventInfo);
+                        await _context.SaveChangesAsync();
+
+                    }
+                    await transaction.CommitAsync();
+
+                    return CreatedAtAction("GetContractEventInfo", new { id = contractEventInfo.ContractEventInfoId }, contractEventInfo);
+                }
+                catch (Exception ex)
+                {
+                    // Rollback the transaction if any error occurs
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"An error occurred: {ex.Message}");
+                    return StatusCode(500, "An error occurred while saving event info.");
                 }
             }
-
-            // Map the model data to the entity (common for both create and update)
-            contractEventInfo.EventInfoEventType = model.EventInfoEventType;
-            contractEventInfo.EventInfoNumberOfChildren = model.EventInfoNumberOfChildren;
-            contractEventInfo.EventInfoEventDate = model.EventInfoEventDate.HasValue
-                ? DateOnly.FromDateTime(model.EventInfoEventDate.Value)
-                : null;
-            contractEventInfo.EventInfoPartyStartTime = !string.IsNullOrEmpty(model.EventInfoPartyStartTime)
-                ? TimeOnly.Parse(model.EventInfoPartyStartTime)
-                : null;
-            contractEventInfo.EventInfoPartyEndTime = !string.IsNullOrEmpty(model.EventInfoPartyEndTime)
-                ? TimeOnly.Parse(model.EventInfoPartyEndTime)
-                : null;
-            contractEventInfo.EventInfoTeamAssigned = model.EventInfoTeamAssigned;
-            contractEventInfo.EventInfoStartClownHour = !string.IsNullOrEmpty(model.EventInfoStartClownHour)
-                ? TimeOnly.Parse(model.EventInfoStartClownHour)
-                : null;
-            contractEventInfo.EventInfoEndClownHour = !string.IsNullOrEmpty(model.EventInfoEndClownHour)
-                ? TimeOnly.Parse(model.EventInfoEndClownHour)
-                : null;
-            contractEventInfo.EventInfoEventAddress = model.EventInfoEventAddress;
-            contractEventInfo.EventInfoEventCity = model.EventInfoEventCity;
-            contractEventInfo.EventInfoEventZip = model.EventInfoEventZip;
-            contractEventInfo.EventInfoEventState = model.EventInfoEventState;
-            contractEventInfo.EventInfoVenue = model.EventInfoVenue;
-            contractEventInfo.EventInfoVenueDescription = model.EventInfoVenueDescription;
-            contractEventInfo.ContractId = model.ContractId;
-            contractEventInfo.CustomerId = model.CustomerId;
-            contractEventInfo.BranchId = BranchId;
-            contractEventInfo.CompanyId = CompanyId;
-
-            bool IsNew = false;
-            if (model.ContractEventInfoId == 0)
-            {
-                 _context.ContractEventInfos.Add(contractEventInfo);
-                IsNew = true;
-            }
-            // Save changes to the database
-            await _context.SaveChangesAsync(); 
-
-            if (IsNew)
-            {
-                await SaveContractAsync(model);
-                contractEventInfo.ContractId = globalContractId;
-                _context.ContractEventInfos.Update(contractEventInfo);
-                await _context.SaveChangesAsync();
-
-            }
-
-            return CreatedAtAction("GetContractEventInfo", new { id = contractEventInfo.ContractEventInfoId }, contractEventInfo);
         }
+
+        private async Task SaveContractAsync(EventInfoModel eventInfoModel)
+        {
+            int BranchId = TokenHelper.GetBranchId(HttpContext);
+            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
+
+            try
+            {
+                // Auto-generate contractId by incrementing the last contractId in the database
+                int contractId = (_context.ContractTimeTeamInfos.Max(c => (int?)c.ContractId) ?? 0) + 1;
+                globalContractId = contractId;
+                // Generate time slots
+
+
+                var timeSlots = GenerateTimeSlots(
+                    eventInfoModel.EventInfoPartyStartTime,
+                    eventInfoModel.EventInfoPartyEndTime
+                );
+
+                foreach (var timeSlot in timeSlots)
+                {
+                    var timeSlotEntity = _context.TimeSlots.FirstOrDefault(o => o.Time == timeSlot);
+                    if (timeSlotEntity == null)
+                    {
+                        throw new Exception($"Time slot '{timeSlot}' not found in the database.");
+                    }
+
+                    var contractTimeTeamInfo = new ContractTimeTeamInfo
+                    {
+                        ContractId = contractId,
+                        TeamId = Convert.ToInt32(eventInfoModel.EventInfoTeamAssigned),
+                        CustomerId = eventInfoModel.CustomerId,
+                        Date = DateOnly.FromDateTime((eventInfoModel.selectedDate == DateTime.MinValue? Convert.ToDateTime( eventInfoModel.EventInfoEventDate) : eventInfoModel.selectedDate)),
+                        TimeSlotId = timeSlotEntity.TimeSlotId,
+                        EntryDate = DateOnly.FromDateTime(DateTime.Now),
+                        BranchId = BranchId,
+                        CompanyId = CompanyId,
+                        ContractNo = GenerateContractNumber(contractId)
+                    };
+
+                    _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+        }
+
         private List<string> GenerateTimeSlots(string startTime, string endTime, int intervalMinutes = 30)
         {
             var slots = new List<string>();
@@ -275,7 +344,7 @@ namespace ClownsCRMAPI.Controllers
             if (DateTime.TryParse(time, out parsedTime))
             {
                 // Convert to 12-hour format with AM/PM
-                return parsedTime.ToString("h:mm:s tt");
+                return parsedTime.ToString("hh:mm tt");
             }
             else
             {
@@ -284,58 +353,7 @@ namespace ClownsCRMAPI.Controllers
             }
         }
         int globalContractId = 0;
-        private async Task SaveContractAsync(EventInfoModel eventInfoModel)
-        {
-            int BranchId = TokenHelper.GetBranchId(HttpContext);
-            int CompanyId = TokenHelper.GetCompanyId(HttpContext);
-
-            try
-            {
-                // Auto-generate contractId by incrementing the last contractId in the database
-                int contractId = (_context.ContractTimeTeamInfos.Max(c => (int?)c.ContractId) ?? 0) + 1;
-                globalContractId = contractId;
-                // Generate time slots
-
-
-                var timeSlots = GenerateTimeSlots(
-                    eventInfoModel.EventInfoPartyStartTime,
-                    eventInfoModel.EventInfoPartyEndTime
-                );
-
-                foreach (var timeSlot in timeSlots)
-                {
-                    var timeSlotEntity = _context.TimeSlots.FirstOrDefault(o => o.Time == timeSlot);
-                    if (timeSlotEntity == null)
-                    {
-                        throw new Exception($"Time slot '{timeSlot}' not found in the database.");
-                    }
-
-                    var contractTimeTeamInfo = new ContractTimeTeamInfo
-                    {
-                        ContractId = contractId,
-                        TeamId = Convert.ToInt32(eventInfoModel.EventInfoTeamAssigned),
-                        CustomerId = eventInfoModel.CustomerId,
-                        Date = DateOnly.FromDateTime(eventInfoModel.selectedDate),
-                        TimeSlotId = timeSlotEntity.TimeSlotId,
-                        EntryDate = DateOnly.FromDateTime(DateTime.Now),
-                        BranchId = BranchId,
-                        CompanyId = CompanyId,
-                        ContractNo = GenerateContractNumber(contractId)
-                     };
-
-                    _context.ContractTimeTeamInfos.Add(contractTimeTeamInfo);
-                }
-
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                // Log the exception or handle it accordingly
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw;
-            }
-        }
-
+      
         // DELETE: api/ContractEventInfoes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContractEventInfo(int id)
