@@ -227,6 +227,10 @@ namespace ClownsCRMAPI.Controllers
 
                 packageInfoId = newPackageInfo.PackageInfoId;
             }
+            if (contractPackageInfoModel.Deposit > 0)
+            {
+                Extensions.SendEmail(contractPackageInfoModel.EmailAddress,contractPackageInfoModel.CustomerId, contractPackageInfoModel.ContractId);
+            }
 
             // Return the PackageInfoId for storing in the session
             return Ok(packageInfoId);

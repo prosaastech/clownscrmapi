@@ -49,7 +49,7 @@ namespace ClownsCRMAPI.CustomModels
         //public Bounce[] Bounces { get; set; } = new Bounce[0];
 
         //public Character[] Characters { get; set; } = new Character[0];
-
+        public string? EmailAddress { get; set; }
 
     }
     public class CharacterModel

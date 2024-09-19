@@ -128,7 +128,8 @@ namespace ClownsCRMAPI.Controllers
                     // Save changes to the database
                     await _context.SaveChangesAsync();
 
-                    if (contractBookingPaymentInfoModel.ContractStatusId == 0)
+                    if (contractBookingPaymentInfoModel.ContractStatusId == 0 ||
+                        contractBookingPaymentInfoModel.ContractStatusId == null)
                     {
                         contractBookingPaymentInfoModel.ContractStatusId = (int)enumContractStatus.Quoted;
                         var PkgInfo = _context.ContractPackageInfos.Where(o => o.ContractId == contractBookingPaymentInfo.ContractId && o.CustomerId == contractBookingPaymentInfo.CustomerId).FirstOrDefault();
