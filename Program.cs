@@ -42,6 +42,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddMemoryCache();
+
+
 // Configure DbContext with PostgreSQL
 builder.Services.AddDbContext<ClownsContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

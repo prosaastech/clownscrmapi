@@ -23,8 +23,7 @@ namespace ClownsCRMAPI.CustomModels
                 var toAddress = new MailAddress(SendTo, "To Faisal");
                 const string fromPassword = "sagh lvmx ybmo tqvq";
                 const string subject = "Clowns and Contract Verification";
-                //string body = $"<a href='http://localhost:3000/Customer/{CustomerId}/contract/{ContractId}'>Click here to verify your contract</a>";
-                string imageUrl = "https://i.ibb.co/TKbFbTT/Clowns-Email2.png"; //"https://i.ibb.co/qC1b6Vx/Clowns-Email.png"; // Use the public URL of your image
+                 string imageUrl = "https://i.ibb.co/TKbFbTT/Clowns-Email2.png"; //"https://i.ibb.co/qC1b6Vx/Clowns-Email.png"; // Use the public URL of your image
                 string linkUrl = $"http://localhost:3000/ClientVerification/{CustomerId}/contract/{ContractId}";// $"http://localhost:3000/Customer/{CustomerId}/contract/{ContractId}"; // URL for the "Verify Your Contract" button
 
                 // HTML body with image and clickable link
@@ -73,7 +72,7 @@ namespace ClownsCRMAPI.CustomModels
             var totp = new Totp(Base32Encoding.ToBytes(SecretKey));
             return totp.ComputeTotp();
         }
-        public static void SendTokenEmail(string SendTo, int? CustomerId, int? ContractId)
+        public static void SendTokenEmail(string SendTo, int? CustomerId, int? ContractId,string Token)
         {
             try
             {
@@ -82,15 +81,13 @@ namespace ClownsCRMAPI.CustomModels
                     || ContractId == null
                     || ContractId == 0) {
                     return;
-                }
-
-
+                } 
 
                 var fromAddress = new MailAddress("motanfaisal67@gmail.com", "Clowns");
                 var toAddress = new MailAddress(SendTo, "To Faisal");
                 const string fromPassword = "sagh lvmx ybmo tqvq";
                 const string subject = "Clowns Verification Code";
-                string Token = GenerateToken();
+               // string Token = GenerateToken();
               
                 // HTML body with image and clickable link
                 string htmlBody = $@"
