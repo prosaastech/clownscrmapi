@@ -98,7 +98,7 @@ namespace ClownsCRMAPI.Controllers
                                  // Where clause to filter by BranchId and CompanyId
                              where customer.BranchId == branchId && customer.CompanyId == companyId
 
-                             // Group results to aggregate character, bounce, and addon names
+                             // Group results  to aggregate character, bounce, and addon names
                              group new { customer, eventInfo, timeTeamInfo, state, contractPackage, partyPackage, character, bounce, addon, contractBookingPayment }
                              by new
                              {
