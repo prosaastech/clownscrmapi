@@ -100,7 +100,7 @@ namespace ClownsCRMAPI.Controllers
 
                              // Group results to aggregate character, bounce, and addon names
                              group new { customer, eventInfo, timeTeamInfo, state, contractPackage, partyPackage, character, bounce, addon, contractBookingPayment }
-                             by new
+                             by new 
                              {
                                  customer.FirstName,
                                  customer.LastName,
