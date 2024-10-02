@@ -87,7 +87,7 @@ var app = builder.Build();
 app.UseCors("AllowSpecificOrigin"); // Use the defined CORS policy
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
