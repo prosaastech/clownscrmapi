@@ -15,7 +15,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
        policy =>
        {
-           policy.WithOrigins("http://localhost:3000")
+           policy.WithOrigins("https://clowns-app.prosaas.us", "http://localhost:3000") // Allow your React app URL and local development
                  .AllowAnyHeader()
                  .AllowAnyMethod()
                  .AllowCredentials(); // Ensure credentials are allowed
@@ -43,7 +43,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddMemoryCache();
-
 
 // Configure DbContext with PostgreSQL
 builder.Services.AddDbContext<ClownsContext>(options =>
@@ -85,11 +84,10 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-//app.UseCors("AllowSpecificOrigin");
-app.UseCors(c => c.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
+app.UseCors("AllowSpecificOrigin"); // Use the defined CORS policy
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
@@ -113,6 +111,3 @@ app.UseMiddleware<TokenValidationMiddleware>(); // Add your custom middleware he
 
 app.MapControllers(); // Map controllers or other endpoints as needed
 app.Run();
-
-
-//dotnet ef dbcontext scaffold "Host=localhost:5432;Database=Clowns;Username=postgres;Password=123" Npgsql.EntityFrameworkCore.PostgreSQL -o Models --force
