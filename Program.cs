@@ -45,8 +45,16 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddMemoryCache();
 
 // Configure DbContext with PostgreSQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Fallback to environment variable if not set in appsettings.json
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
+}
+
 builder.Services.AddDbContext<ClownsContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Add services to the container
 builder.Services.AddControllers();
