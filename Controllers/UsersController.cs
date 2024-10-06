@@ -58,7 +58,7 @@ namespace ClownsCRMAPI.Controllers
             new Claim("branchId", loginUser.BranchId.ToString()), // Add BranchId claim
             new Claim("companyId", loginUser.CompanyId.ToString()) // Add CompanyId claim
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(1),
+                Expires = DateTime.UtcNow.AddHours(1),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Issuer"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
