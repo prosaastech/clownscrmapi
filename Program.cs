@@ -95,22 +95,22 @@ var app = builder.Build();
 app.UseCors("AllowSpecificOrigin"); // Use the defined CORS policy
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
-{
+//if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+//{
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "ClownsCRMAPI v1");
     });
-}
-else
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+//}
+//else
+//{
+//    app.UseExceptionHandler("/Home/Error");
+//    app.UseHsts();
+//}
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
